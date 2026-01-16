@@ -1,4 +1,5 @@
-import { Button, FormField, Input } from "@/shared/ui";
+import { Button, Checkbox, FormField, Input } from "@/shared/ui";
+import TermsBox from "./TermsBox";
 
 export default function SignupForm() {
   return (
@@ -51,7 +52,11 @@ export default function SignupForm() {
           className="mb-10"
         >
           {/* TODO: DoubleCheck Input 컴포넌트 만들고 추가 */}
-          <Input type="password" error="error" />
+          <Input
+            type="password"
+            error="error"
+            placeholder="비밀번호를 입력해 주세요."
+          />
         </FormField>
 
         {/* 비밀번호 확인 */}
@@ -61,13 +66,30 @@ export default function SignupForm() {
           className="mb-10"
         >
           {/* TODO: DoubleCheck Input 컴포넌트 만들고 추가 */}
-          <Input type="password" error="error" />
+          <Input
+            type="password"
+            error="error"
+            placeholder="비밀번호를 다시 입력해 주세요."
+          />
         </FormField>
 
         {/* 이용약관 */}
+        <div className="grid gap-2 mb-6">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-gray-600">이용약관</p>
+            <Checkbox
+              label={<span className="text-sm text-mainColor/30">동의함</span>}
+              checked={false}
+            />
+          </div>
+          <TermsBox />
+        </div>
 
         {/* 회원가입 버튼 */}
-        <Button size="lg" className="mt-2 w-full mb-6">
+        <Button
+          size="lg"
+          className="mt-2 w-full mb-6 text-[18px] font-semibold"
+        >
           회원가입
         </Button>
 

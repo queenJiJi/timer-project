@@ -8,3 +8,12 @@
   font-family: Pretendard, system-ui, -apple-system, Segoe UI, Roboto,
     "Noto Sans KR", sans-serif;
 }
+
+/* 스크롤은 되지만 스크롤바는 숨김 */
+.scrollbar-hidden {
+  -ms-overflow-style: none; /* IE, Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}

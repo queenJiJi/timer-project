@@ -4,7 +4,7 @@ type Props = React.InputHTMLAttributes<HTMLInputElement> & {
 };
 
 const base =
-  "w-full rounded-md border bg-white px-3 py-2 text-sm outline-none transition placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500";
+  "w-full rounded-sm border bg-[#F9FAFB] px-3 py-4 text-sm outline-none transition placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500";
 
 export default function Input({
   error,
