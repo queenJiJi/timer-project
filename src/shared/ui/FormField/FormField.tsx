@@ -2,22 +2,19 @@ type Props = {
   label?: string;
   required?: boolean;
   errorText?: string;
+  className: string;
   children: React.ReactNode;
 };
 
 export default function FormField({
   label,
-  required,
   errorText,
+  className = "",
   children,
 }: Props) {
   return (
-    <div className="grid gap-1">
-      {label ? (
-        <label className="text-xs font-medium text-gray-700">
-          {label} {required ? <span className="text-red-500">*</span> : null}
-        </label>
-      ) : null}
+    <div className={`flex flex-col gap-2 ${className}`}>
+      <label className="text-sm font-medium text-[#4B5563]">{label}</label>
 
       {children}
 

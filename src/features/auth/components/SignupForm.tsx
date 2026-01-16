@@ -10,8 +10,9 @@ export default function SignupForm() {
       <form>
         {/* 아이디 */}
         <FormField
-          label="이메일 주소"
+          label="아이디"
           errorText={"이메일 형식으로 작성해 주세요."}
+          className="mb-10"
         >
           {/* TODO: DoubleCheck Input 컴포넌트 만들고 추가 */}
           <Input
@@ -26,11 +27,15 @@ export default function SignupForm() {
         </FormField>
 
         {/* 닉네임 */}
-        <FormField label="닉네임" errorText={"닉네임을 입력해 주세요."}>
+        <FormField
+          label="닉네임"
+          errorText={"닉네임을 입력해 주세요."}
+          className="mb-10"
+        >
           {/* TODO: DoubleCheck Input 컴포넌트 만들고 추가 */}
           <Input
             type="text"
-            error="error"
+            // error="error"
             rightSlot={
               <Button size="sm" className="bg-mainColor/10 text-mainColor">
                 중복 확인
@@ -43,6 +48,7 @@ export default function SignupForm() {
         <FormField
           label="비밀번호"
           errorText={"비밀번호는 8자 이상, 영문과 숫자 조합이어야 합니다."}
+          className="mb-10"
         >
           {/* TODO: DoubleCheck Input 컴포넌트 만들고 추가 */}
           <Input type="password" error="error" />
@@ -52,6 +58,7 @@ export default function SignupForm() {
         <FormField
           label="비밀번호 확인"
           errorText={"비밀번호가 일치하지 않습니다."}
+          className="mb-10"
         >
           {/* TODO: DoubleCheck Input 컴포넌트 만들고 추가 */}
           <Input type="password" error="error" />
