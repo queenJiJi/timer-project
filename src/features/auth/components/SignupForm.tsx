@@ -19,11 +19,7 @@ export default function SignupForm() {
           <Input
             type="email"
             error="error"
-            rightSlot={
-              <Button size="sm" className="bg-mainColor/10 text-mainColor">
-                중복 확인
-              </Button>
-            }
+            placeholder="이메일 주소 형식으로 입력해 주세요."
           />
         </FormField>
 
@@ -37,11 +33,7 @@ export default function SignupForm() {
           <Input
             type="text"
             // error="error"
-            rightSlot={
-              <Button size="sm" className="bg-mainColor/10 text-mainColor">
-                중복 확인
-              </Button>
-            }
+            placeholder="닉네임을 입력해 주세요."
           />
         </FormField>
 
