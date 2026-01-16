@@ -60,13 +60,16 @@ export default function SignupForm() {
         {/* 이용약관 */}
 
         {/* 회원가입 버튼 */}
-        <Button size="lg" className="mt-2 w-full">
+        <Button size="lg" className="mt-2 w-full mb-6">
           회원가입
         </Button>
 
         {/* 하단링크 */}
-        <div>
-          <span>회원이신가요?</span> <a>로그인 바로가기</a>
+        <div className="text-center text-sm text-mainColor">
+          <span className="mr-3">회원이신가요?</span>
+          <a className="font-bold" href="/auth/login">
+            로그인 바로가기
+          </a>
         </div>
       </form>
     </section>
