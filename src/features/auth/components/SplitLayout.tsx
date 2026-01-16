@@ -8,7 +8,7 @@ export default function SplitLayout({ left, children }: Props) {
     <div className="min-h-screen bg-white">
       <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
         {/* Left (Brand Panel) */}
-        <aside className="hidden lg:flex items-center justify-center bg-[#4C79FF]">
+        <aside className="hidden lg:flex items-center justify-center bg-mainColor">
           <div className="w-full h-full flex items-center justify-center">
             {left}
           </div>

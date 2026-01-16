@@ -1,12 +1,12 @@
 import SplitLayout from "../components/SplitLayout";
 import SignupForm from "../components/SignupForm";
+import logo from "@/assets/logo_white.svg";
 
 function BrandPanel() {
   return (
     <div className="text-white flex flex-col items-center justify-center gap-4">
-      {/* 로고 이미지가 있으면 <img />로 교체 */}
-      <div className="text-4xl font-extrabold tracking-tight">DevTime</div>
-      <p className="text-sm opacity-90">개발자를 위한 타이머</p>
+      <img src={logo} alt="DevTime Logo" className="w-[264px] h-[200px]" />
+      <p className="text-[20px] opacity-90">개발자를 위한 타이머</p>
     </div>
   );
 }
