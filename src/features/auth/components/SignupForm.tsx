@@ -1,5 +1,6 @@
 import { Button, Checkbox, FormField, Input } from "@/shared/ui";
 import TermsBox from "./TermsBox";
+import { Link } from "react-router-dom";
 
 export default function SignupForm() {
   return (
@@ -88,9 +89,9 @@ export default function SignupForm() {
         {/* 하단링크 */}
         <div className="text-center text-sm text-mainColor">
           <span className="mr-3">회원이신가요?</span>
-          <a className="font-bold" href="/auth/login">
+          <Link className="font-bold" to="/auth/login">
             로그인 바로가기
-          </a>
+          </Link>
         </div>
       </form>
     </section>
