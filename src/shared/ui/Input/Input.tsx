@@ -3,7 +3,7 @@ type Props = React.InputHTMLAttributes<HTMLInputElement> & {
 };
 
 const base =
-  "w-full rounded bg-[#F9FAFB] px-3 py-4 text-md outline-none transition placeholder:text-gray-300 focus:ring-2 focus:ring-blue-500";
+  "w-full h-[44px] rounded bg-[#F9FAFB] px-3 py-4 text-md outline-none transition placeholder:text-gray-300 focus:ring-2 focus:ring-blue-500";
 
 export default function Input({ error, className = "", ...props }: Props) {
   const borderClass = error

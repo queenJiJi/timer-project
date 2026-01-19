@@ -1,4 +1,4 @@
-type ButtonVariant = "primary" | "outline" | "ghost";
+type ButtonVariant = "primary" | "secondary" | "tertiary" | "outline" | "ghost";
 type ButtonSize = "sm" | "md" | "lg";
 
 type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -14,6 +14,10 @@ const base =
 
 const variants: Record<ButtonVariant, string> = {
   primary: "bg-mainColor text-white hover:bg-blue-700 focus:ring-[#FF47FF]",
+  secondary:
+    "bg-mainColor/10 text-mainColor hover:bg-mainColor/20 focus:ring-[#FF47FF]",
+  tertiary:
+    "bg-[#F9FAFB] text-mainColor hover:bg-[#F4F6F8] focus:ring-[#FF47FF]",
   outline:
     "border border-gray-300 text-gray-900 hover:bg-gray-50 focus:ring-gray-400",
   ghost: "bg-transparent text-gray-900 hover:bg-gray-100 focus:ring-gray-400",

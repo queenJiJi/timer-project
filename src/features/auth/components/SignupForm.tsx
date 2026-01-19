@@ -16,12 +16,23 @@ export default function SignupForm() {
           errorText={"이메일 형식으로 작성해 주세요."}
           className="mb-10"
         >
-          {/* TODO: DoubleCheck Input 컴포넌트 만들고 추가 */}
-          <Input
-            type="email"
-            error="error"
-            placeholder="이메일 주소 형식으로 입력해 주세요."
-          />
+          <div className="flex">
+            <div className="flex-1 mr-3">
+              <Input
+                type="email"
+                error="error"
+                placeholder="이메일 주소 형식으로 입력해 주세요."
+              />
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              className="w-[84px] h-[44px] shrink-0"
+            >
+              중복 확인
+            </Button>
+          </div>
         </FormField>
 
         {/* 닉네임 */}
@@ -30,12 +41,23 @@ export default function SignupForm() {
           errorText={"닉네임을 입력해 주세요."}
           className="mb-10"
         >
-          {/* TODO: DoubleCheck Input 컴포넌트 만들고 추가 */}
-          <Input
-            type="text"
-            // error="error"
-            placeholder="닉네임을 입력해 주세요."
-          />
+          <div className="flex">
+            <div className="flex-1 mr-3">
+              <Input
+                type="text"
+                // error="error"
+                placeholder="닉네임을 입력해 주세요."
+              />
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              className="w-[84px] h-[44px] shrink-0"
+            >
+              중복 확인
+            </Button>
+          </div>
         </FormField>
 
         {/* 비밀번호 */}
@@ -71,7 +93,7 @@ export default function SignupForm() {
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-gray-600">이용약관</p>
             <Checkbox
-              label={<span className="text-sm text-mainColor/30">동의함</span>}
+              label={<span className="text-sm text-mainColor/30 ">동의함</span>}
               checked={false}
             />
           </div>

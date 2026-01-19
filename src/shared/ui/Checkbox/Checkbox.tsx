@@ -9,7 +9,7 @@ export default function Checkbox({ label, className = "", ...props }: Props) {
       <input
         {...props}
         type="checkbox"
-        className={`h-4 w-4 rounded-md border-mainColor text-blue-600 focus:ring-blue-500 ${className}`}
+        className={`h-4 w-4 rounded-md border-mainColor text-blue-600 focus:mainColor ${className}`}
       />
     </label>
   );
