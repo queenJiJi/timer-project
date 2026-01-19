@@ -1,27 +1,69 @@
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Checkbox, FormField, Input } from "@/shared/ui";
-import TermsBox from "./TermsBox";
 import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import type { SubmitHandler } from "react-hook-form";
+import TermsBox from "./TermsBox";
 
 export default function SignupForm() {
+  const schema = z
+    .object({
+      id: z.email("이메일 주소 형식으로 입력해 주세요."),
+      nickname: z.string().min(1, "닉네임을 입력해 주세요."),
+      password: z
+        .string()
+        .min(8, "비밀번호는 8자 이상, 영문과 숫자 조합이어야 합니다."),
+      passwordConfirm: z.string().min(8, "비밀번호가 일치하지 않습니다."),
+      agree: z.boolean().refine((v) => v === true),
+    })
+    .refine((v) => v.password === v.passwordConfirm, {
+      message: "비밀번호가 일치하지 않습니다.",
+      path: ["passwordConfirm"],
+    });
+
+  type Inputs = z.infer<typeof schema>;
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Inputs>({
+    resolver: zodResolver(schema),
+    mode: "onChange",
+    defaultValues: {
+      id: "",
+      nickname: "",
+      password: "",
+      passwordConfirm: "",
+      agree: false,
+    },
+  });
+
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    console.log(data);
+  };
+
   return (
     <section className="bg-white p-10">
       <h1 className="text-center text-mainColor font-bold text-2xl mb-9">
         회원가입
       </h1>
 
-      <form>
+      <form onSubmit={handleSubmit(onSubmit)}>
         {/* 아이디 */}
         <FormField
           label="아이디"
-          errorText={"이메일 형식으로 작성해 주세요."}
+          errorText={errors.id?.message}
           className="mb-10"
         >
           <div className="flex">
             <div className="flex-1 mr-3">
               <Input
                 type="email"
-                error="error"
                 placeholder="이메일 주소 형식으로 입력해 주세요."
+                {...register("id")}
+                error={errors.id?.message}
               />
             </div>
             <Button
@@ -38,15 +80,16 @@ export default function SignupForm() {
         {/* 닉네임 */}
         <FormField
           label="닉네임"
-          errorText={"닉네임을 입력해 주세요."}
+          errorText={errors.nickname?.message}
           className="mb-10"
         >
           <div className="flex">
             <div className="flex-1 mr-3">
               <Input
                 type="text"
-                // error="error"
                 placeholder="닉네임을 입력해 주세요."
+                {...register("nickname")}
+                error={errors.nickname?.message}
               />
             </div>
             <Button
@@ -63,28 +106,28 @@ export default function SignupForm() {
         {/* 비밀번호 */}
         <FormField
           label="비밀번호"
-          errorText={"비밀번호는 8자 이상, 영문과 숫자 조합이어야 합니다."}
+          errorText={errors.password?.message}
           className="mb-10"
         >
-          {/* TODO: DoubleCheck Input 컴포넌트 만들고 추가 */}
           <Input
             type="password"
-            error="error"
             placeholder="비밀번호를 입력해 주세요."
+            {...register("password")}
+            error={errors.password?.message}
           />
         </FormField>
 
         {/* 비밀번호 확인 */}
         <FormField
           label="비밀번호 확인"
-          errorText={"비밀번호가 일치하지 않습니다."}
+          errorText={errors.passwordConfirm?.message}
           className="mb-10"
         >
-          {/* TODO: DoubleCheck Input 컴포넌트 만들고 추가 */}
           <Input
             type="password"
-            error="error"
             placeholder="비밀번호를 다시 입력해 주세요."
+            {...register("passwordConfirm")}
+            error={errors.passwordConfirm?.message}
           />
         </FormField>
 
@@ -94,7 +137,8 @@ export default function SignupForm() {
             <p className="text-sm font-medium text-gray-600">이용약관</p>
             <Checkbox
               label={<span className="text-sm text-mainColor/30 ">동의함</span>}
-              checked={false}
+              {...register("agree")}
+              error={!!errors.agree}
             />
           </div>
           <TermsBox />
@@ -102,6 +146,7 @@ export default function SignupForm() {
 
         {/* 회원가입 버튼 */}
         <Button
+          type="submit"
           size="lg"
           className="mt-2 w-full mb-6 text-[18px] font-semibold"
         >
