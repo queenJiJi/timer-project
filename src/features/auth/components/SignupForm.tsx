@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Checkbox, FormField, Input } from "@/shared/ui";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import TermsBox from "./TermsBox";
 import { checkEmail, checkNickname, signup } from "../api/signupApi";
@@ -47,18 +47,19 @@ export default function SignupForm() {
       agree: false,
     },
   });
-
   const [idStatus, setIdStatus] = useState<CheckStatus>("default");
   const [nicknameStatus, setNicknameStatus] = useState<CheckStatus>("default");
   const [idChecked, setIdChecked] = useState(false);
   const [nicknameChecked, setNicknameChecked] = useState(false);
 
-  const getId = getValues("id");
-  const canCheckId = Boolean(getId) && !errors.id && !idChecked;
+  const idVal = useWatch({ control, name: "id" });
+  //   const getId = getValues("id");
+  const canCheckId = Boolean(idVal) && !errors.id && !idChecked;
 
-  const getNickname = getValues("nickname");
+  //   const getNickname = getValues("nickname");
+  const nicknameVal = useWatch({ control, name: "nickname" });
   const canCheckNickname =
-    Boolean(getNickname) && !errors.nickname && !nicknameChecked;
+    Boolean(nicknameVal) && !errors.nickname && !nicknameChecked;
 
   const canSubmit =
     isValid &&
