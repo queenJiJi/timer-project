@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import TermsBox from "./TermsBox";
+import { checkEmail, checkNickname, signup } from "../api/signupApi";
 
 export default function SignupForm() {
   const schema = z
@@ -34,6 +35,7 @@ export default function SignupForm() {
     getValues,
     setError,
     clearErrors,
+    reset,
   } = useForm<Inputs>({
     resolver: zodResolver(schema),
     mode: "onChange",
@@ -81,49 +83,76 @@ export default function SignupForm() {
     },
   });
 
-  // TODO: 실제 아이디 중복확인 API 연동
+  // 중복확인 상태 초기화
+  const resetDup = () => {
+    setIdChecked(false);
+    setIdStatus("default");
+    setNicknameChecked(false);
+    setNicknameStatus("default");
+  };
+
+  // 아이디 중복확인
   const handleCheckId = async () => {
-    if (!getId || errors.id) return;
+    const email = getValues("id");
+    if (!email || errors.id) return;
     clearErrors("id");
 
-    await new Promise((resolve) => setTimeout(resolve, 600));
-
-    const response = !getId.includes("taken");
-    if (response) {
-      setIdStatus("available");
-      setIdChecked(true);
-    } else {
+    try {
+      const data = await checkEmail(email);
+      if (data.available) {
+        setIdStatus("available");
+        setIdChecked(true);
+        console.log("이메일 사용 가능");
+      } else {
+        setIdStatus("unavailable");
+        setIdChecked(false);
+        setError("id", {
+          type: "manual",
+          message: "이미 사용 중인 이메일입니다.",
+        });
+      }
+    } catch (e) {
       setIdStatus("unavailable");
       setIdChecked(false);
       setError("id", {
         type: "manual",
-        message: "이미 사용 중인 이메일입니다.",
+        message: e instanceof Error ? e.message : "이메일 중복확인 실패",
       });
     }
   };
-  // TODO: 실제 닉네임 중복확인 API 연동
+
+  // 닉네임 중복확인
   const handleCheckNickname = async () => {
+    const getNickname = getValues("nickname");
     if (!getNickname || errors.nickname) return;
 
     clearErrors("nickname");
 
-    await new Promise((r) => setTimeout(r, 600));
-
-    const available = getNickname !== "admin"; // 데모
-    if (available) {
-      setNicknameStatus("available");
-      setNicknameChecked(true);
-    } else {
+    try {
+      const data = await checkNickname(getNickname);
+      if (data.available) {
+        setNicknameStatus("available");
+        setNicknameChecked(true);
+      } else {
+        setNicknameStatus("unavailable");
+        setNicknameChecked(false);
+        setError("nickname", {
+          type: "manual",
+          message: "이미 사용 중인 닉네임입니다.",
+        });
+      }
+    } catch (e) {
       setNicknameStatus("unavailable");
       setNicknameChecked(false);
       setError("nickname", {
         type: "manual",
-        message: "이미 사용 중인 닉네임입니다.",
+        message: e instanceof Error ? e.message : "닉네임 중복확인 실패",
       });
     }
   };
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
+  // 회원가입 제출
+  const onSubmit: SubmitHandler<Inputs> = async (form) => {
     if (!idChecked) {
       setError("id", { type: "manual", message: "중복을 확인해 주세요." });
       return;
@@ -135,7 +164,22 @@ export default function SignupForm() {
       });
       return;
     }
-    console.log("회원가입 데이터:", data);
+
+    try {
+      const data = {
+        email: form.id,
+        nickname: form.nickname,
+        password: form.password,
+        confirmPassword: form.passwordConfirm,
+      };
+
+      const res = await signup(data);
+      console.log("회원가입 성공:", res);
+      reset();
+      resetDup();
+    } catch (e) {
+      console.error("회원가입 실패:", e);
+    }
   };
 
   return (
@@ -149,6 +193,9 @@ export default function SignupForm() {
         <FormField
           label="아이디"
           errorText={errors.id?.message}
+          successText={
+            idStatus === "available" ? "사용 가능한 이메일입니다." : ""
+          }
           className="mb-10"
         >
           <div className="flex">
@@ -177,6 +224,9 @@ export default function SignupForm() {
         <FormField
           label="닉네임"
           errorText={errors.nickname?.message}
+          successText={
+            nicknameStatus === "available" ? "사용 가능한 닉네임입니다." : ""
+          }
           className="mb-10"
         >
           <div className="flex">
