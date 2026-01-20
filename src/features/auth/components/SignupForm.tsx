@@ -2,8 +2,8 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Checkbox, FormField, Input } from "@/shared/ui";
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import TermsBox from "./TermsBox";
 
@@ -24,13 +24,14 @@ export default function SignupForm() {
     });
 
   type Inputs = z.infer<typeof schema>;
-  type CheckStatus = "default" | "checking" | "available" | "unavailable";
+  type CheckStatus = "default" | "available" | "unavailable";
 
   const {
     register,
     handleSubmit,
     control,
     formState: { errors, isValid, isSubmitting },
+    getValues,
     setError,
     clearErrors,
   } = useForm<Inputs>({
@@ -45,48 +46,49 @@ export default function SignupForm() {
     },
   });
 
-  const idVal = useWatch({ control, name: "id" });
-  const nicknameVal = useWatch({ control, name: "nickname" });
-  const agreeVal = useWatch({ control, name: "agree" });
-
   const [idStatus, setIdStatus] = useState<CheckStatus>("default");
   const [nicknameStatus, setNicknameStatus] = useState<CheckStatus>("default");
   const [idChecked, setIdChecked] = useState(false);
   const [nicknameChecked, setNicknameChecked] = useState(false);
 
-  const canCheckId = Boolean(idVal) && !errors.id && !idChecked;
+  const getId = getValues("id");
+  const canCheckId = Boolean(getId) && !errors.id && !idChecked;
+
+  const getNickname = getValues("nickname");
   const canCheckNickname =
-    Boolean(nicknameVal) && !errors.nickname && !nicknameChecked;
+    Boolean(getNickname) && !errors.nickname && !nicknameChecked;
 
   const canSubmit =
     isValid &&
-    agreeVal === true &&
+    getValues("agree") === true &&
     idChecked &&
     nicknameChecked &&
     !isSubmitting;
 
-  // 아이디 입력값이 바뀌면 중복확인 상태 초기화
-  useEffect(() => {
-    setIdStatus("default");
-    setIdChecked(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idVal]);
+  //  입력값이 바뀌면 중복확인 무효화: useEffect 대신 register onChange로 처리
+  const idRegister = register("id", {
+    onChange: () => {
+      // 입력이 바뀌면 "중복확인 결과" 초기화
+      if (idChecked) setIdChecked(false);
+      if (idStatus !== "default") setIdStatus("default");
+    },
+  });
 
-  // 닉네임 입력값이 바뀌면 중복확인 상태 초기화
-  useEffect(() => {
-    setNicknameStatus("default");
-    setNicknameChecked(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nicknameVal]);
+  const nicknameRegister = register("nickname", {
+    onChange: () => {
+      if (nicknameChecked) setNicknameChecked(false);
+      if (nicknameStatus !== "default") setNicknameStatus("default");
+    },
+  });
 
   // TODO: 실제 아이디 중복확인 API 연동
   const handleCheckId = async () => {
-    if (!idVal || errors.id) return;
+    if (!getId || errors.id) return;
     clearErrors("id");
 
     await new Promise((resolve) => setTimeout(resolve, 600));
 
-    const response = !idVal.includes("taken");
+    const response = !getId.includes("taken");
     if (response) {
       setIdStatus("available");
       setIdChecked(true);
@@ -101,13 +103,13 @@ export default function SignupForm() {
   };
   // TODO: 실제 닉네임 중복확인 API 연동
   const handleCheckNickname = async () => {
-    if (!nicknameVal || errors.nickname) return;
+    if (!getNickname || errors.nickname) return;
 
     clearErrors("nickname");
 
     await new Promise((r) => setTimeout(r, 600));
 
-    const available = nicknameVal !== "admin"; // 데모
+    const available = getNickname !== "admin"; // 데모
     if (available) {
       setNicknameStatus("available");
       setNicknameChecked(true);
@@ -154,7 +156,7 @@ export default function SignupForm() {
               <Input
                 type="email"
                 placeholder="이메일 주소 형식으로 입력해 주세요."
-                {...register("id")}
+                {...idRegister}
                 error={errors.id?.message}
               />
             </div>
@@ -182,7 +184,7 @@ export default function SignupForm() {
               <Input
                 type="text"
                 placeholder="닉네임을 입력해 주세요."
-                {...register("nickname")}
+                {...nicknameRegister}
                 error={errors.nickname?.message}
               />
             </div>
