@@ -2,7 +2,8 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Checkbox, FormField, Input } from "@/shared/ui";
 import { Link } from "react-router-dom";
-import { Controller, useForm } from "react-hook-form";
+import { useState, useEffect } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import TermsBox from "./TermsBox";
 
@@ -23,12 +24,15 @@ export default function SignupForm() {
     });
 
   type Inputs = z.infer<typeof schema>;
+  type CheckStatus = "default" | "checking" | "available" | "unavailable";
 
   const {
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, isValid, isSubmitting },
+    setError,
+    clearErrors,
   } = useForm<Inputs>({
     resolver: zodResolver(schema),
     mode: "onChange",
@@ -41,8 +45,95 @@ export default function SignupForm() {
     },
   });
 
+  const idVal = useWatch({ control, name: "id" });
+  const nicknameVal = useWatch({ control, name: "nickname" });
+  const agreeVal = useWatch({ control, name: "agree" });
+
+  const [idStatus, setIdStatus] = useState<CheckStatus>("default");
+  const [nicknameStatus, setNicknameStatus] = useState<CheckStatus>("default");
+  const [idChecked, setIdChecked] = useState(false);
+  const [nicknameChecked, setNicknameChecked] = useState(false);
+
+  const canCheckId = Boolean(idVal) && !errors.id && !idChecked;
+  const canCheckNickname =
+    Boolean(nicknameVal) && !errors.nickname && !nicknameChecked;
+
+  const canSubmit =
+    isValid &&
+    agreeVal === true &&
+    idChecked &&
+    nicknameChecked &&
+    !isSubmitting;
+
+  // 아이디 입력값이 바뀌면 중복확인 상태 초기화
+  useEffect(() => {
+    setIdStatus("default");
+    setIdChecked(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idVal]);
+
+  // 닉네임 입력값이 바뀌면 중복확인 상태 초기화
+  useEffect(() => {
+    setNicknameStatus("default");
+    setNicknameChecked(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nicknameVal]);
+
+  // TODO: 실제 아이디 중복확인 API 연동
+  const handleCheckId = async () => {
+    if (!idVal || errors.id) return;
+    clearErrors("id");
+
+    await new Promise((resolve) => setTimeout(resolve, 600));
+
+    const response = !idVal.includes("taken");
+    if (response) {
+      setIdStatus("available");
+      setIdChecked(true);
+    } else {
+      setIdStatus("unavailable");
+      setIdChecked(false);
+      setError("id", {
+        type: "manual",
+        message: "이미 사용 중인 이메일입니다.",
+      });
+    }
+  };
+  // TODO: 실제 닉네임 중복확인 API 연동
+  const handleCheckNickname = async () => {
+    if (!nicknameVal || errors.nickname) return;
+
+    clearErrors("nickname");
+
+    await new Promise((r) => setTimeout(r, 600));
+
+    const available = nicknameVal !== "admin"; // 데모
+    if (available) {
+      setNicknameStatus("available");
+      setNicknameChecked(true);
+    } else {
+      setNicknameStatus("unavailable");
+      setNicknameChecked(false);
+      setError("nickname", {
+        type: "manual",
+        message: "이미 사용 중인 닉네임입니다.",
+      });
+    }
+  };
+
   const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log(data);
+    if (!idChecked) {
+      setError("id", { type: "manual", message: "중복을 확인해 주세요." });
+      return;
+    }
+    if (!nicknameChecked) {
+      setError("nickname", {
+        type: "manual",
+        message: "중복을 확인해 주세요.",
+      });
+      return;
+    }
+    console.log("회원가입 데이터:", data);
   };
 
   return (
@@ -72,6 +163,8 @@ export default function SignupForm() {
               size="sm"
               variant="secondary"
               className="w-[84px] h-[44px] shrink-0"
+              disabled={!canCheckId}
+              onClick={handleCheckId}
             >
               중복 확인
             </Button>
@@ -98,6 +191,8 @@ export default function SignupForm() {
               size="sm"
               variant="secondary"
               className="w-[84px] h-[44px] shrink-0"
+              disabled={!canCheckNickname}
+              onClick={handleCheckNickname}
             >
               중복 확인
             </Button>
@@ -157,6 +252,7 @@ export default function SignupForm() {
           type="submit"
           size="lg"
           className="mt-2 w-full mb-6 text-[18px] font-semibold"
+          disabled={!canSubmit}
         >
           회원가입
         </Button>

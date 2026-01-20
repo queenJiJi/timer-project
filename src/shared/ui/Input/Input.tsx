@@ -9,7 +9,7 @@ const base =
 const Input = forwardRef<HTMLInputElement, Props>(
   ({ error, className = "", ...props }, ref) => {
     const borderClass = error
-      ? "border-red-400 focus:ring-red-500"
+      ? "border-[#DC2626] focus:ring-red-500"
       : "border-gray-200";
 
     return (
