@@ -2,14 +2,14 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Checkbox, FormField, Input } from "@/shared/ui";
 import { Link } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import TermsBox from "./TermsBox";
 
 export default function SignupForm() {
   const schema = z
     .object({
-      id: z.email("이메일 주소 형식으로 입력해 주세요."),
+      id: z.string().email("이메일 주소 형식으로 입력해 주세요."),
       nickname: z.string().min(1, "닉네임을 입력해 주세요."),
       password: z
         .string()
@@ -27,6 +27,7 @@ export default function SignupForm() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<Inputs>({
     resolver: zodResolver(schema),
@@ -135,10 +136,17 @@ export default function SignupForm() {
         <div className="grid gap-2 mb-6">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-gray-600">이용약관</p>
-            <Checkbox
-              label={<span className="text-sm text-mainColor/30 ">동의함</span>}
-              {...register("agree")}
-              error={!!errors.agree}
+            <Controller
+              name="agree"
+              control={control}
+              render={({ field }) => (
+                <Checkbox
+                  label="동의함"
+                  checked={field.value}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                  error={!!errors.agree}
+                />
+              )}
             />
           </div>
           <TermsBox />
