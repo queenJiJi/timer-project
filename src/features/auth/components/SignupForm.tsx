@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import TermsBox from "./TermsBox";
-import { checkEmail, checkNickname, signup } from "../api/signupApi";
+import { signupAPI } from "../api/signupApi";
 
 export default function SignupForm() {
   const schema = z
@@ -53,10 +53,8 @@ export default function SignupForm() {
   const [nicknameChecked, setNicknameChecked] = useState(false);
 
   const idVal = useWatch({ control, name: "id" });
-  //   const getId = getValues("id");
   const canCheckId = Boolean(idVal) && !errors.id && !idChecked;
 
-  //   const getNickname = getValues("nickname");
   const nicknameVal = useWatch({ control, name: "nickname" });
   const canCheckNickname =
     Boolean(nicknameVal) && !errors.nickname && !nicknameChecked;
@@ -99,7 +97,7 @@ export default function SignupForm() {
     clearErrors("id");
 
     try {
-      const data = await checkEmail(email);
+      const data = await signupAPI.checkEmail(email);
       if (data.available) {
         setIdStatus("available");
         setIdChecked(true);
@@ -130,7 +128,7 @@ export default function SignupForm() {
     clearErrors("nickname");
 
     try {
-      const data = await checkNickname(getNickname);
+      const data = await signupAPI.checkNickname(getNickname);
       if (data.available) {
         setNicknameStatus("available");
         setNicknameChecked(true);
@@ -174,7 +172,7 @@ export default function SignupForm() {
         confirmPassword: form.passwordConfirm,
       };
 
-      const res = await signup(data);
+      const res = await signupAPI.signup(data);
       console.log("회원가입 성공:", res);
       reset();
       resetDup();
