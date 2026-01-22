@@ -6,7 +6,12 @@ import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import TermsBox from "./TermsBox";
-import { signupAPI } from "../api/signupApi";
+// import { signupAPI } from "../api/signupApi";
+import {
+  useCheckEmailQuery,
+  useCheckNicknameQuery,
+} from "../model/useDupChecks";
+import { useSignupMutation } from "../model/useSignupMutation";
 
 export default function SignupForm() {
   const schema = z
@@ -59,6 +64,13 @@ export default function SignupForm() {
   const canCheckNickname =
     Boolean(nicknameVal) && !errors.nickname && !nicknameChecked;
 
+  // 중복확인 쿼리
+  const emailQuery = useCheckEmailQuery(idVal ?? "");
+  const nicknameQuery = useCheckNicknameQuery(nicknameVal ?? "");
+
+  // 회원가입 mutation
+  const signupMutation = useSignupMutation();
+
   const canSubmit =
     isValid &&
     getValues("agree") === true &&
@@ -97,7 +109,11 @@ export default function SignupForm() {
     clearErrors("id");
 
     try {
-      const data = await signupAPI.checkEmail(email);
+      // const data = await signupAPI.checkEmail(email);
+      const res = await emailQuery.refetch(); // 버튼 클릭 시 수동으로 쿼리 실행
+      const data = res.data;
+
+      if (!data) return;
       if (data.available) {
         setIdStatus("available");
         setIdChecked(true);
@@ -128,7 +144,11 @@ export default function SignupForm() {
     clearErrors("nickname");
 
     try {
-      const data = await signupAPI.checkNickname(getNickname);
+      // const data = await signupAPI.checkNickname(getNickname);
+      const res = await nicknameQuery.refetch();
+      const data = res.data;
+
+      if (!data) return;
       if (data.available) {
         setNicknameStatus("available");
         setNicknameChecked(true);
@@ -172,8 +192,10 @@ export default function SignupForm() {
         confirmPassword: form.passwordConfirm,
       };
 
-      const res = await signupAPI.signup(data);
-      console.log("회원가입 성공:", res);
+      // const res = await signupAPI.signup(data);
+      await signupMutation.mutateAsync(data);
+      // console.log("회원가입 성공:", res);
+      alert("회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.");
       reset();
       resetDup();
     } catch (e) {
