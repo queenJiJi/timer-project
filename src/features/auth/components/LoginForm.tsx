@@ -1,9 +1,13 @@
 import logo from "@/assets/logo.svg";
+import { tokenStorage } from "@/shared/auth/tokenStorage";
 import { Button, FormField, Input } from "@/shared/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import z from "zod";
+import { useLoginMutations } from "../model/useLoginMutation";
+import { useRef } from "react";
+
 export default function LoginForm() {
   const schema = z.object({
     id: z
@@ -22,7 +26,6 @@ export default function LoginForm() {
     handleSubmit,
     trigger,
     formState: { errors, isValid, isSubmitting },
-    reset,
   } = useForm<Inputs>({
     resolver: zodResolver(schema),
     mode: "onChange",
@@ -31,12 +34,42 @@ export default function LoginForm() {
       password: "",
     },
   });
-
+  const navigate = useNavigate();
+  const emailRef = useRef<HTMLInputElement | null>(null);
+  const idRegister = register("id");
+  const loginMutation = useLoginMutations();
   const canSubmit = isValid && !isSubmitting;
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    console.log(data);
-    reset();
+    try {
+      const res = await loginMutation.mutateAsync({
+        email: data.id,
+        password: data.password,
+      });
+
+      tokenStorage.setTokens({
+        accessToken: res.accessToken,
+        refreshToken: res.refreshToken,
+      });
+
+      if (res.isDuplicateLogin) {
+        //TODO: 중복 로그인이 불가하다는 모달 띄우기
+        alert("중복 로그인이 불가능합니다.");
+      }
+
+      if (res.isFirstLogin) {
+        // TODO: 최초 로그인 시 프로필 설정 페이지로 이동
+        navigate("/profile", { replace: true });
+      } else {
+        //TODO: 메인페이지(타이머페이지)로 이동
+        navigate("/", { replace: true });
+      }
+    } catch (error) {
+      //TODO: 에러 모달 띄우기
+      alert("로그인 정보를 다시 확인해 주세요");
+      console.log(error);
+      setTimeout(() => emailRef.current?.focus(), 0);
+    }
   };
 
   const handleLoginAttempt = async () => {
@@ -70,7 +103,11 @@ export default function LoginForm() {
           <Input
             type="email"
             placeholder="이메일 주소를 입력해 주세요."
-            {...register("id")}
+            {...idRegister}
+            ref={(el) => {
+              idRegister.ref(el);
+              emailRef.current = el;
+            }}
             error={errors.id?.message}
           />
         </FormField>
