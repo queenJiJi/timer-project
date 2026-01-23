@@ -58,10 +58,10 @@ export default function LoginForm() {
       }
 
       if (res.isFirstLogin) {
-        // TODO: 최초 로그인 시 프로필 설정 페이지로 이동
+        // 최초 로그인 시 프로필 설정 페이지로 이동
         navigate("/profile", { replace: true });
       } else {
-        //TODO: 메인페이지(타이머페이지)로 이동
+        // 메인페이지(타이머페이지)로 이동
         navigate("/", { replace: true });
       }
     } catch (error) {
