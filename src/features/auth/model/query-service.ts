@@ -1,4 +1,4 @@
-import { signupAPI } from "../api/signupApi";
+import { signupAPI } from "../api/api-service";
 
 export const authQueryKeys = {
   all: ["auth"] as const,
