@@ -93,7 +93,6 @@ export default function LoginForm() {
           type="button"
           size="lg"
           className="mt-2 w-full mb-6 text-[18px] font-semibold"
-          //   className={`mt-2 w-full mb-6 text-[18px] font-semibold ${!canSubmit ? "bg-[#969DA8] text-[#CCD0D6] hover:bg-[#969DA8] hover:text-[#CCD0D6]" : "bg-mainColor hover:bg-mainColor/90"}`}
           onClick={handleLoginAttempt}
           aria-disabled={!canSubmit}
           disabled={isSubmitting}

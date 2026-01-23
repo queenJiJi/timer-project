@@ -1,12 +1,11 @@
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Checkbox, FormField, Input } from "@/shared/ui";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import TermsBox from "./TermsBox";
-// import { signupAPI } from "../api/signupApi";
 import {
   useCheckEmailQuery,
   useCheckNicknameQuery,
@@ -16,7 +15,7 @@ import { useSignupMutation } from "../model/useSignupMutation";
 export default function SignupForm() {
   const schema = z
     .object({
-      id: z.string().email("이메일 주소 형식으로 입력해 주세요."),
+      id: z.string().email("이메일 형식으로 작성해 주세요."),
       nickname: z.string().min(1, "닉네임을 입력해 주세요."),
       password: z
         .string()
@@ -35,6 +34,7 @@ export default function SignupForm() {
   const {
     register,
     handleSubmit,
+    trigger,
     control,
     formState: { errors, isValid, isSubmitting },
     getValues,
@@ -52,6 +52,8 @@ export default function SignupForm() {
       agree: false,
     },
   });
+  const navigate = useNavigate();
+
   const [idStatus, setIdStatus] = useState<CheckStatus>("default");
   const [nicknameStatus, setNicknameStatus] = useState<CheckStatus>("default");
   const [idChecked, setIdChecked] = useState(false);
@@ -109,7 +111,6 @@ export default function SignupForm() {
     clearErrors("id");
 
     try {
-      // const data = await signupAPI.checkEmail(email);
       const res = await emailQuery.refetch(); // 버튼 클릭 시 수동으로 쿼리 실행
       const data = res.data;
 
@@ -117,7 +118,6 @@ export default function SignupForm() {
       if (data.available) {
         setIdStatus("available");
         setIdChecked(true);
-        console.log("이메일 사용 가능");
       } else {
         setIdStatus("unavailable");
         setIdChecked(false);
@@ -144,7 +144,6 @@ export default function SignupForm() {
     clearErrors("nickname");
 
     try {
-      // const data = await signupAPI.checkNickname(getNickname);
       const res = await nicknameQuery.refetch();
       const data = res.data;
 
@@ -192,14 +191,25 @@ export default function SignupForm() {
         confirmPassword: form.passwordConfirm,
       };
 
-      // const res = await signupAPI.signup(data);
       await signupMutation.mutateAsync(data);
-      // console.log("회원가입 성공:", res);
-      alert("회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.");
+
       reset();
       resetDup();
+
+      navigate("/auth/login", { replace: true }); // 로그인 페이지로 이동
     } catch (e) {
       console.error("회원가입 실패:", e);
+    }
+  };
+
+  // 회원가입 시도
+  const handleSignupAttempt = async () => {
+    const ok = await trigger(
+      ["id", "nickname", "password", "passwordConfirm", "agree"],
+      { shouldFocus: true },
+    );
+    if (ok) {
+      handleSubmit(onSubmit)();
     }
   };
 
@@ -209,7 +219,7 @@ export default function SignupForm() {
         회원가입
       </h1>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={(e) => e.preventDefault()}>
         {/* 아이디 */}
         <FormField
           label="아이디"
@@ -322,10 +332,12 @@ export default function SignupForm() {
 
         {/* 회원가입 버튼 */}
         <Button
-          type="submit"
+          type="button"
           size="lg"
           className="mt-2 w-full mb-6 text-[18px] font-semibold"
-          disabled={!canSubmit}
+          onClick={handleSignupAttempt}
+          disabled={isSubmitting}
+          aria-disabled={!canSubmit}
         >
           회원가입
         </Button>
