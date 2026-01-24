@@ -19,7 +19,7 @@ export async function request<T>(
     headers: {
       "Content-type": "application/json",
       ...(auth && accessToken
-        ? { Authorization: `Barear ${accessToken}` }
+        ? { Authorization: `Bearer ${accessToken}` }
         : {}),
       ...(headers ?? {}),
     },

@@ -51,7 +51,10 @@ export const authAPI = {
 
   // 로그아웃
   logout() {
-    return request<LogoutResponse>(`/api/auth/logout`, { method: "POST" });
+    return request<LogoutResponse>(`/api/auth/logout`, {
+      method: "POST",
+      auth: true,
+    });
   },
 
   // 토큰 리프레시
