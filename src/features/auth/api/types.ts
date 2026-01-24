@@ -41,5 +41,5 @@ export type RefreshRequest = {
 
 export type RefreshResponse = {
   success: boolean;
-  message: string;
+  accessToken: string;
 };
