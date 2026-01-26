@@ -58,10 +58,8 @@ export default function LoginForm() {
       });
 
       if (res.isDuplicateLogin) {
-        //TODO: 중복 로그인이 불가하다는 모달 띄우기
         setModal({ open: true, type: "duplicate" });
         return;
-        // alert("중복 로그인이 불가능합니다.");
       }
 
       if (res.isFirstLogin) {
@@ -72,10 +70,7 @@ export default function LoginForm() {
         navigate("/", { replace: true });
       }
     } catch {
-      //TODO: 에러 모달 띄우기
-      // alert("로그인 정보를 다시 확인해 주세요");
       setModal({ open: true, type: "error" });
-      // setTimeout(() => emailRef.current?.focus(), 0);
     }
   };
 
@@ -154,9 +149,8 @@ export default function LoginForm() {
         title="로그인 정보를 다시 확인해 주세요"
         onConfirm={() => {
           setModal({ open: false, type: null });
-          emailRef.current?.focus();
+          setTimeout(() => emailRef.current?.focus(), 0);
         }}
-        close={false}
       />
       <AlertModal
         open={modal.open && modal.type === "duplicate"}
@@ -166,7 +160,9 @@ export default function LoginForm() {
           setModal({ open: false, type: null });
           navigate("/", { replace: true });
         }}
-        close={false}
+        align="left"
+        confirmButtonSize="sm"
+        confirmFullWidth={false}
       />
     </section>
   );
