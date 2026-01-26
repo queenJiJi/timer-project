@@ -14,10 +14,11 @@ export async function request<T>(
 ): Promise<T> {
   const { auth = false, _retry = false, headers, ...rest } = options;
   const accessToken = tokenStorage.getAccess();
+  const hasBody = rest.body !== undefined && rest.body != null;
 
   const res = await fetch(`${API_BASE}${url}`, {
     headers: {
-      "Content-type": "application/json",
+      ...(hasBody ? { "Content-type": "application/json" } : {}),
       ...(auth && accessToken
         ? { Authorization: `Bearer ${accessToken}` }
         : {}),
