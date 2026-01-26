@@ -6,7 +6,8 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import z from "zod";
 import { useLoginMutations } from "../model/useLoginMutation";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { AlertModal } from "@/shared/ui/Modal";
 
 export default function LoginForm() {
   const schema = z.object({
@@ -39,6 +40,10 @@ export default function LoginForm() {
   const idRegister = register("id");
   const loginMutation = useLoginMutations();
   const canSubmit = isValid && !isSubmitting;
+  const [modal, setModal] = useState<{
+    open: boolean;
+    type: "error" | "duplicate" | null;
+  }>({ open: false, type: null });
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
@@ -54,7 +59,9 @@ export default function LoginForm() {
 
       if (res.isDuplicateLogin) {
         //TODO: 중복 로그인이 불가하다는 모달 띄우기
-        alert("중복 로그인이 불가능합니다.");
+        setModal({ open: true, type: "duplicate" });
+        return;
+        // alert("중복 로그인이 불가능합니다.");
       }
 
       if (res.isFirstLogin) {
@@ -64,11 +71,11 @@ export default function LoginForm() {
         // 메인페이지(타이머페이지)로 이동
         navigate("/", { replace: true });
       }
-    } catch (error) {
+    } catch {
       //TODO: 에러 모달 띄우기
-      alert("로그인 정보를 다시 확인해 주세요");
-      console.log(error);
-      setTimeout(() => emailRef.current?.focus(), 0);
+      // alert("로그인 정보를 다시 확인해 주세요");
+      setModal({ open: true, type: "error" });
+      // setTimeout(() => emailRef.current?.focus(), 0);
     }
   };
 
@@ -142,6 +149,25 @@ export default function LoginForm() {
           <Link to="/auth/signup">회원가입</Link>
         </div>
       </form>
+      <AlertModal
+        open={modal.open && modal.type === "error"}
+        title="로그인 정보를 다시 확인해 주세요"
+        onConfirm={() => {
+          setModal({ open: false, type: null });
+          emailRef.current?.focus();
+        }}
+        close={false}
+      />
+      <AlertModal
+        open={modal.open && modal.type === "duplicate"}
+        title="중복 로그인이 불가능합니다."
+        description="다른 기기에 중복 로그인 된 상태입니다. [확인] 버튼을 누르면 다른 기기에서 강제 로그아웃되며, 진행중이던 타이머가 없다면 기록이 자동 삭제됩니다."
+        onConfirm={() => {
+          setModal({ open: false, type: null });
+          navigate("/", { replace: true });
+        }}
+        close={false}
+      />
     </section>
   );
 }
