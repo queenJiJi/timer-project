@@ -44,6 +44,7 @@ export default function LoginForm() {
     open: boolean;
     type: "error" | "duplicate" | null;
   }>({ open: false, type: null });
+  const [nextPath, setNextPath] = useState<string>("/");
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
@@ -56,19 +57,17 @@ export default function LoginForm() {
         accessToken: res.accessToken,
         refreshToken: res.refreshToken,
       });
+      const computeNext = res.isFirstLogin ? "/profile" : "/";
 
       if (res.isDuplicateLogin) {
+        // 중복 로그인된 경우
+        setNextPath(computeNext);
         setModal({ open: true, type: "duplicate" });
         return;
       }
 
-      if (res.isFirstLogin) {
-        // 최초 로그인 시 프로필 설정 페이지로 이동
-        navigate("/profile", { replace: true });
-      } else {
-        // 메인페이지(타이머페이지)로 이동
-        navigate("/", { replace: true });
-      }
+      // 중복 로그인이 아니라면 바로 이동
+      navigate(computeNext, { replace: true });
     } catch {
       setModal({ open: true, type: "error" });
     }
@@ -144,6 +143,8 @@ export default function LoginForm() {
           <Link to="/auth/signup">회원가입</Link>
         </div>
       </form>
+
+      {/* 로그인 실패 모달 */}
       <AlertModal
         open={modal.open && modal.type === "error"}
         title="로그인 정보를 다시 확인해 주세요"
@@ -152,13 +153,14 @@ export default function LoginForm() {
           setTimeout(() => emailRef.current?.focus(), 0);
         }}
       />
+      {/* 중복 로그인 모달 */}
       <AlertModal
         open={modal.open && modal.type === "duplicate"}
         title="중복 로그인이 불가능합니다."
         description="다른 기기에 중복 로그인 된 상태입니다. [확인] 버튼을 누르면 다른 기기에서 강제 로그아웃되며, 진행중이던 타이머가 없다면 기록이 자동 삭제됩니다."
         onConfirm={() => {
           setModal({ open: false, type: null });
-          navigate("/", { replace: true });
+          navigate(nextPath, { replace: true });
         }}
         align="left"
         confirmButtonSize="sm"
