@@ -36,10 +36,12 @@ export function AlertModal({
       >
         <DialogHeader>
           <DialogTitle className={`${textAlign} mb-6`}>{title}</DialogTitle>
-          {description && (
+          {description ? (
             <DialogDescription className={`${textAlign} text-gray-600`}>
               {description}
             </DialogDescription>
+          ) : (
+            <DialogDescription className="sr-only">{title}</DialogDescription>
           )}
         </DialogHeader>
 
