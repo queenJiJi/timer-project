@@ -44,7 +44,7 @@ export default function LoginForm() {
     open: boolean;
     type: "error" | "duplicate" | null;
   }>({ open: false, type: null });
-  const [nextPath, setNextPath] = useState<string>("/");
+  const [nextPath, setNextPath] = useState<string>("/timer");
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
@@ -57,7 +57,7 @@ export default function LoginForm() {
         accessToken: res.accessToken,
         refreshToken: res.refreshToken,
       });
-      const computeNext = res.isFirstLogin ? "/profile" : "/";
+      const computeNext = res.isFirstLogin ? "/profile" : "/timer";
 
       if (res.isDuplicateLogin) {
         // 중복 로그인된 경우

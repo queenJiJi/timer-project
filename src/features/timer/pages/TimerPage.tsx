@@ -1,7 +1,7 @@
 import UseLogoutMutation from "@/features/auth/model/useLogoutMutation";
 import { useNavigate } from "react-router-dom";
 
-export default function MainPage() {
+export default function TimerPage() {
   const navigate = useNavigate();
   const logoutMutation = UseLogoutMutation();
 
