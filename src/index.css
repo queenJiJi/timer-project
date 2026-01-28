@@ -1,12 +1,29 @@
 @import "pretendard/dist/web/static/pretendard.css";
+@font-face {
+  font-family: "Digital Numbers";
+  src: url("/fonts/DigitalNumbers-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+.digital {
+  font-family: "Digital Numbers", ui-monospace, monospace;
+  font-weight: 400;
+}
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  font-family: Pretendard, system-ui, -apple-system, Segoe UI, Roboto,
-    "Noto Sans KR", sans-serif;
+  font-family:
+    Pretendard,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    "Noto Sans KR",
+    sans-serif;
 }
 
 /* 스크롤은 되지만 스크롤바는 숨김 */
