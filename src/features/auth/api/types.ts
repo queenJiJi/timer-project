@@ -1,4 +1,4 @@
-export type DupCheckRespoonse = {
+export type DupCheckResponse = {
   success: boolean;
   available: boolean;
   message: string;
