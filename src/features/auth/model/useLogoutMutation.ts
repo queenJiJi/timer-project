@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { authAPI } from "../api/api-service";
 import { tokenStorage } from "@/shared/auth/tokenStorage";
 
-export default function UseLogoutMutation() {
+export default function useLogoutMutation() {
   return useMutation({
     mutationFn: () => authAPI.logout(),
     onSettled: () => {

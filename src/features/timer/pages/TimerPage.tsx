@@ -1,9 +1,9 @@
-import UseLogoutMutation from "@/features/auth/model/useLogoutMutation";
+import useLogoutMutation from "@/features/auth/model/useLogoutMutation";
 import { useNavigate } from "react-router-dom";
 
 export default function TimerPage() {
   const navigate = useNavigate();
-  const logoutMutation = UseLogoutMutation();
+  const logoutMutation = useLogoutMutation();
 
   const onLogout = async () => {
     try {
