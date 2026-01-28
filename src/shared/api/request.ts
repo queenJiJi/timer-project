@@ -1,7 +1,7 @@
 import { authAPI } from "@/features/auth/api/api-service";
 import { tokenStorage } from "../auth/tokenStorage";
 
-const API_BASE = "https://devtime.prokit.app";
+const API_BASE = import.meta.env.VITE_API_BASE;
 
 type RequestOptions = RequestInit & {
   auth?: boolean; // 필요할 떄만 Authorization 추가(기본은 false이며, auth가 필요한 부분에선 auth:true로 받을것)
