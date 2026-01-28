@@ -13,7 +13,7 @@ export async function request<T>(
   options: RequestOptions = {},
 ): Promise<T> {
   const { auth = false, _retry = false, headers, ...rest } = options;
-  const accessToken = tokenStorage.getAccess();
+  const accessToken = tokenStorage.getAccessToken();
   const hasBody = rest.body !== undefined && rest.body != null;
 
   const res = await fetch(`${API_BASE}${url}`, {
@@ -26,17 +26,16 @@ export async function request<T>(
     },
     ...rest,
   });
-
   let data = null;
   try {
     data = await res.json();
   } catch {
-    //ignore
+    // JSON할 body 없거나 파싱 실패 -> 그냥 data = null 유지
   }
 
   // accessToken 만료(401)이고, 아직 재시도 안했으면 refresh 후 1회 재시도
   if (res.status === 401 && auth && !_retry) {
-    const refreshToken = tokenStorage.getRefresh();
+    const refreshToken = tokenStorage.getRefreshToken();
     if (!refreshToken) {
       tokenStorage.clearTokens();
       throw new Error("세션이 만료되었습니다. 다시 로그인해 주세요.");
