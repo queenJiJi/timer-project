@@ -7,6 +7,8 @@ import TimerPage from "@/features/timer/pages/TimerPage";
 import LandingPage from "@/features/main/pages/LandingPage";
 import AuthShell from "@/shared/layout/AuthShell";
 import AppShell from "@/shared/layout/AppShell";
+import DashboardPage from "@/features/dashboard/pages/DashboardPage";
+import RankingPage from "@/features/ranking/pages/RankingPage";
 
 export const router = createBrowserRouter([
   // 앱 레이아웃(배경+헤터 기본적용)
@@ -29,6 +31,24 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        // 대시보드 페이지는 로그인 필요
+        path: "/dashboard",
+        element: (
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        // 랭킹 페이지는 로그인 필요
+        path: "/ranking",
+        element: (
+          <ProtectedRoute>
+            <RankingPage />
           </ProtectedRoute>
         ),
       },

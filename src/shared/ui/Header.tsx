@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import logo_horizontal from "@/assets/logo_horizontal.png";
 import useLogoutMutation from "@/features/auth/model/useLogoutMutation";
 
@@ -20,16 +20,31 @@ export default function Header({ user }: Props) {
       <div className="mx-auto flex h-[72px] w-full max-w-[1200px] items-center justify-between px-10">
         {/* 왼쪽 영역 */}
         <div className="flex items-center gap-10">
-          <Link to="/">
+          {/*  DevTime 로고를 클릭하면 타이머 페이지로 이동 */}
+          <Link to="/timer">
             <img src={logo_horizontal} alt="DevTime" />
           </Link>
           <nav className="flex items-center gap-9 text-[16px] text-secondColor">
-            <Link to="/timer" className="hover:font-semibold after:underline">
+            <NavLink
+              to="/dashboard"
+              className={({ isActive }) =>
+                isActive
+                  ? "font-semibold underline underline-offset-4"
+                  : "hover:font-semibold"
+              }
+            >
               대시보드
-            </Link>
-            <Link to="/ranking" className="hover:font-semibold after:underline">
+            </NavLink>
+            <NavLink
+              to="/ranking"
+              className={({ isActive }) =>
+                isActive
+                  ? "font-semibold underline underline-offset-4"
+                  : "hover:font-semibold"
+              }
+            >
               랭킹
-            </Link>
+            </NavLink>
           </nav>
         </div>
         {/* 오른쪽 영역 */}
