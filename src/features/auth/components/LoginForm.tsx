@@ -8,6 +8,7 @@ import z from "zod";
 import { useLoginMutations } from "../model/useLoginMutation";
 import { useRef, useState } from "react";
 import { AlertModal } from "@/shared/ui/Modal";
+import { useAuthStore } from "@/shared/auth/authStore";
 
 const schema = z.object({
   id: z
@@ -44,19 +45,23 @@ export default function LoginForm() {
     open: boolean;
     type: "error" | "duplicate" | null;
   }>({ open: false, type: null });
+  const setAuthed = useAuthStore((s) => s.setAuthed);
   const [nextPath, setNextPath] = useState<string>("/timer");
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
+      // 로그인 성공 시
       const res = await loginMutation.mutateAsync({
         email: data.id,
         password: data.password,
       });
 
       tokenStorage.setTokens({
+        // 토큰 저장
         accessToken: res.accessToken,
         refreshToken: res.refreshToken,
       });
+      setAuthed(true); // 상태 저장
       const computeNext = res.isFirstLogin ? "/profile" : "/timer";
 
       if (res.isDuplicateLogin) {
