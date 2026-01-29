@@ -16,8 +16,6 @@ export default function TimerPage() {
   return (
     <div>
       <h1>여기가 메인(타이머)페이지에요</h1>
-      {/* 임시로 logout 버튼 넣어둔 것 */}
-      <button onClick={onLogout}>로그아웃</button>
     </div>
   );
 }

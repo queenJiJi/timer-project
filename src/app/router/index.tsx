@@ -10,7 +10,6 @@ import AppShell from "@/shared/layout/AppShell";
 
 export const router = createBrowserRouter([
   // 앱 레이아웃(배경+헤터 기본적용)
-
   {
     element: <AppShell />,
     children: [
