@@ -157,6 +157,10 @@ export default function LoginForm() {
           setModal({ open: false, type: null });
           setTimeout(() => emailRef.current?.focus(), 0);
         }}
+        confirmText="확인"
+        buttonWidth="w-full"
+        fullButton={true}
+        // confirmFullWidth={true}
       />
       {/* 중복 로그인 모달 */}
       <AlertModal
@@ -168,8 +172,9 @@ export default function LoginForm() {
           navigate(nextPath, { replace: true });
         }}
         align="left"
-        confirmButtonSize="sm"
-        confirmFullWidth={false}
+        // confirmButtonSize="sm"
+        // confirmFullWidth={false}
+        confirmText="확인"
       />
     </section>
   );

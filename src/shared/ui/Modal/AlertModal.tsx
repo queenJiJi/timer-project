@@ -11,20 +11,40 @@ type AlertModalProps = {
   open: boolean;
   title?: string;
   description?: string;
+
+  confirmText: string;
+  cancelText?: string;
+
   onConfirm: () => void;
+  onCancel?: () => void;
+
   align?: "center" | "left";
-  confirmButtonSize?: "sm" | "md" | "lg";
-  confirmFullWidth?: boolean;
+  buttonSize?: "sm" | "md" | "lg";
+  buttonWidth?: "w-full" | "w-[64px]" | "w-[110px]";
+  buttonHeight?: "h-12" | "h-10";
+
+  cancelButton?: boolean;
+  fullButton?: boolean;
 };
 
 export function AlertModal({
   open,
   title = "알림",
   description,
+
+  confirmText = "확인",
+  cancelText = "취소",
+
   onConfirm,
+  onCancel,
+
   align = "center",
-  confirmButtonSize = "lg",
-  confirmFullWidth = true,
+  buttonSize = "lg",
+  buttonWidth = "w-full",
+  buttonHeight = "h-12",
+
+  cancelButton = false,
+  fullButton = false,
 }: AlertModalProps) {
   const textAlign = align === "center" ? "text-center" : "text-left";
 
@@ -45,18 +65,28 @@ export function AlertModal({
           )}
         </DialogHeader>
 
-        <div className={confirmFullWidth ? "mt-6" : "mt-3 flex justify-end"}>
-          <Button
-            size={confirmButtonSize}
-            className={
-              confirmFullWidth
-                ? "w-full text-[18px] "
-                : "w-[64px] h-12 text-[18px]"
-            }
-            onClick={onConfirm}
-          >
-            확인
-          </Button>
+        <div className="flex justify-end">
+          {cancelButton ? (
+            <Button
+              className={
+                "w-[64px] h-12 bg-[#F9FAFB] text-mainColor font-semibold text-[18px] mt-6 mr-4"
+              }
+              onClick={onCancel}
+            >
+              {cancelText}
+            </Button>
+          ) : (
+            ""
+          )}
+          <div className={`${fullButton ? "w-full" : ""} mt-6 `}>
+            <Button
+              size={buttonSize}
+              className={`${buttonWidth} text-[18px] ${buttonHeight}`}
+              onClick={onConfirm}
+            >
+              {confirmText}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
