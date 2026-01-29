@@ -5,30 +5,43 @@ import ProtectedRoute from "@/shared/auth/ProtectedRoute";
 import ProfilePage from "@/features/profile/pages/ProfilePage";
 import TimerPage from "@/features/timer/pages/TimerPage";
 import LandingPage from "@/features/main/pages/LandingPage";
+import AuthShell from "@/shared/layout/AuthShell";
+import AppShell from "@/shared/layout/AppShell";
 
 export const router = createBrowserRouter([
-  // 랜딩페이지(공개)
-  { path: "/", element: <LandingPage /> },
+  // 앱 레이아웃(배경+헤터 기본적용)
 
   {
-    // 메인(타이머)페이지는 로그인 필요
-    path: "/timer",
-    element: (
-      <ProtectedRoute>
-        <TimerPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    // 프로필 설정 페이지는 로그인 필요
-    path: "/profile",
-    element: (
-      <ProtectedRoute>
-        <ProfilePage />
-      </ProtectedRoute>
-    ),
+    element: <AppShell />,
+    children: [
+      { path: "/", element: <LandingPage /> }, // 랜딩페이지(공개)
+      {
+        // 메인(타이머)페이지는 로그인 필요
+        path: "/timer",
+        element: (
+          <ProtectedRoute>
+            <TimerPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        // 프로필 설정 페이지는 로그인 필요
+        path: "/profile",
+        element: (
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        ),
+      },
+    ],
   },
 
-  { path: "/auth/signup", element: <SignupPage /> },
-  { path: "/auth/login", element: <LoginPage /> },
+  // 인증 레이아웃(배경/헤더 없음)
+  {
+    element: <AuthShell />,
+    children: [
+      { path: "/auth/signup", element: <SignupPage /> },
+      { path: "/auth/login", element: <LoginPage /> },
+    ],
+  },
 ]);

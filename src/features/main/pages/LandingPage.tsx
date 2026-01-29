@@ -1,7 +1,9 @@
+import TimerView from "@/features/timer/components/TimerView";
+
 export default function LandingPage() {
   return (
-    <div>
-      <h1>여기가 랜딩페이지에요</h1>
-    </div>
+    <main className="mx-auto w-full max-w-[1200px] px-10 pt-20">
+      <TimerView />
+    </main>
   );
 }
