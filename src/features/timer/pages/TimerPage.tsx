@@ -1,21 +1,30 @@
-import useLogoutMutation from "@/features/auth/model/useLogoutMutation";
-import { useNavigate } from "react-router-dom";
+import { useMemo, useState } from "react";
+import TimerView from "../components/TimerView";
+import type { TimerState } from "../components/TimerControls";
 
 export default function TimerPage() {
-  const navigate = useNavigate();
-  const logoutMutation = useLogoutMutation();
+  // TODO: 나중에 zustand/store + 실제 타이머 로직으로 교체
+  const [timerState, setTimerState] = useState<TimerState>("idle");
 
-  const onLogout = async () => {
-    try {
-      await logoutMutation.mutateAsync();
-    } finally {
-      navigate("/auth/login", { replace: true });
-    }
-  };
+  const { hh, mm, ss } = useMemo(() => {
+    // TODO: 실제 타이머 값 연결
+    return { hh: "00", mm: "00", ss: "00" };
+  }, []);
 
   return (
-    <div>
-      <h1>여기가 메인(타이머)페이지에요</h1>
-    </div>
+    <TimerView
+      hh={hh}
+      mm={mm}
+      ss={ss}
+      timerState={timerState}
+      onPlay={() => setTimerState("running")}
+      onPause={() => setTimerState("paused")}
+      onStop={() => setTimerState("idle")}
+      title={
+        <h1 className="text-[72px] font-bold tracking-[0.08em] text-mainColor/30">
+          오늘도 열심히 달려봐요!
+        </h1>
+      }
+    />
   );
 }
