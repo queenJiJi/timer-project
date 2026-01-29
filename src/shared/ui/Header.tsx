@@ -3,7 +3,7 @@ import logo_horizontal from "@/assets/logo_horizontal.png";
 import useLogoutMutation from "@/features/auth/model/useLogoutMutation";
 
 type Props = {
-  user?: { name: string; avatarUrl: string };
+  user?: { name: string; avatarUrl?: string };
 };
 export default function Header({ user }: Props) {
   const logoutMutation = useLogoutMutation();
@@ -12,7 +12,7 @@ export default function Header({ user }: Props) {
     try {
       await logoutMutation.mutateAsync();
     } finally {
-      navigate("/auth/login", { replace: true });
+      navigate("/", { replace: true });
     }
   };
   return (

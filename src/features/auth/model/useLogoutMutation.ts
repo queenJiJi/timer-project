@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authAPI } from "../api/api-service";
 import { tokenStorage } from "@/shared/auth/tokenStorage";
-import { profileQueryKeys } from "@/features/timer/model/query-service";
+import { profileQueryKeys } from "@/features/profile/model/query-service";
 
 export default function useLogoutMutation() {
   const queryClient = useQueryClient();

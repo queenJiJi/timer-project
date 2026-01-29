@@ -1,21 +1,14 @@
 import { Outlet } from "react-router-dom";
 import Header from "../ui/Header";
-import { tokenStorage } from "../auth/tokenStorage";
-import useGetProfile from "@/features/timer/model/useGetProfile";
-
-type Props = {
-  name: string;
-  avatarUrl: string;
-};
+import useGetProfile from "@/features/profile/model/useGetProfile";
 
 export default function AppShell() {
-  const hasToken = !!tokenStorage.getAccessToken();
+  // const hasToken = !!tokenStorage.getAccessToken();
   const { data } = useGetProfile();
 
-  const user: Props | undefined =
-    hasToken && data
-      ? { name: data.nickname, avatarUrl: data.profile?.profileImage }
-      : undefined;
+  const user = data
+    ? { name: data.nickname, avatarUrl: data.profile?.profileImage }
+    : undefined;
   return (
     <div
       className="min-h-screen

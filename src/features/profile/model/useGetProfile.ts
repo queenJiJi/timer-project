@@ -9,5 +9,6 @@ export default function useGetProfile() {
     ...profileQueryOptions.me(),
     enabled: hasToken, // 토큰 유무 확인 후 호출
     staleTime: 1000 * 60 * 5, // 5분 캐싱
+    retry: false,
   });
 }
