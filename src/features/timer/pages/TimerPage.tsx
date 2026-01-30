@@ -1,15 +1,34 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import TimerView from "../components/TimerView";
-import type { TimerState } from "../components/TimerControls";
+import useGetActiveTimer from "../model/useGetTimer";
+import { useTimerStore } from "../model/timerStore";
+import { msToHMS } from "../lib/calculateTimer";
 
 export default function TimerPage() {
-  // TODO: 나중에 zustand/store + 실제 타이머 로직으로 교체
-  const [timerState, setTimerState] = useState<TimerState>("idle");
+  const { data, isFetched } = useGetActiveTimer();
 
-  const { hh, mm, ss } = useMemo(() => {
-    // TODO: 실제 타이머 값 연결
-    return { hh: "00", mm: "00", ss: "00" };
-  }, []);
+  const timerState = useTimerStore((s) => s.timerState);
+  const setTimerState = useTimerStore((s) => s.setTimerState);
+
+  const totalMs = useTimerStore((s) => s.totalMs);
+  const timerId = useTimerStore((s) => s.timerId);
+
+  const hydrateFromServer = useTimerStore((s) => s.hydrateFromServer);
+  const reset = useTimerStore((s) => s.reset);
+
+  useEffect(() => {
+    if (!isFetched) return; // 아직 결과 확정전이라면 아무것도 하지 않음
+    if (data) {
+      hydrateFromServer(data); // GET 성공 시 => store에 반영 및 세팅
+      return;
+    }
+    // 서버에 activetimer 없더라도(404/null) 이미 타이머가 클라이언트에서 돌고있거나(혹은 paused), timerId가 있으면 유지
+    const hasLocalTimer = timerId !== null || timerState !== "idle";
+    if (hasLocalTimer) return;
+    reset(); // 진짜아무것도 없을 때 reset
+  }, [data, isFetched, hydrateFromServer, reset, timerId, timerState]);
+
+  const { hh, mm, ss } = useMemo(() => msToHMS(totalMs), [totalMs]);
 
   return (
     <TimerView

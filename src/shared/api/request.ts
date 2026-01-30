@@ -8,6 +8,19 @@ type RequestOptions = RequestInit & {
   _retry?: boolean; // 무한 재시도 방지
 };
 
+// status를 들고 다니는 에러 타입
+export class HttpError<TBody = unknown> extends Error {
+  status: number;
+  body: TBody | null;
+
+  constructor(status: number, message: string, body: TBody | null = null) {
+    super(message);
+    this.name = "HttpError";
+    this.status = status;
+    this.body = body;
+  }
+}
+
 export async function request<T>(
   url: string,
   options: RequestOptions = {},
@@ -58,7 +71,12 @@ export async function request<T>(
   }
 
   if (!res.ok) {
-    throw new Error(data?.message ?? "요청에 실패했습니다.");
+    const message =
+      (data && typeof data === "object" && "message" in data && data.message) ||
+      "요청에 실패했습니다.";
+
+    throw new HttpError(res.status, message, data);
+    // throw new Error(data?.message ?? "요청에 실패했습니다.");
   }
 
   return data as T;
