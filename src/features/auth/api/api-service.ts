@@ -3,7 +3,7 @@ import type {
   LoginResponse,
   LogoutResponse,
   RefreshResponse,
-  DupCheckRespoonse,
+  DupCheckResponse,
   LoginRequest,
   RefreshRequest,
   SignupRequest,
@@ -14,7 +14,7 @@ export const signupAPI = {
   // 이메일 중복확인
   checkEmail(email: string) {
     const params = new URLSearchParams({ email });
-    return request<DupCheckRespoonse>(
+    return request<DupCheckResponse>(
       `/api/signup/check-email?${params.toString()}`,
       { method: "GET" },
     );
@@ -23,7 +23,7 @@ export const signupAPI = {
   // 닉네임 중복확인
   checkNickname(nickname: string) {
     const params = new URLSearchParams({ nickname });
-    return request<DupCheckRespoonse>(
+    return request<DupCheckResponse>(
       `/api/signup/check-nickname?${params.toString()}`,
       {
         method: "GET",

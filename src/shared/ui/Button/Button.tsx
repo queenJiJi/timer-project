@@ -1,4 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
 
 type Props = React.ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonVariants> & {
@@ -63,7 +64,7 @@ export default function Button({
   return (
     <button
       {...props}
-      className={buttonVariants({ variant, size, className })}
+      className={cn(buttonVariants({ variant, size }), className)}
       disabled={disabled || isLoading}
     >
       {isLoading ? "Loading..." : children}

@@ -12,25 +12,25 @@ import {
 } from "../model/useDupChecks";
 import { useSignupMutation } from "../model/useSignupMutation";
 
+const schema = z
+  .object({
+    id: z.string().email("이메일 형식으로 작성해 주세요."),
+    nickname: z.string().min(1, "닉네임을 입력해 주세요."),
+    password: z
+      .string()
+      .min(8, "비밀번호는 8자 이상, 영문과 숫자 조합이어야 합니다."),
+    passwordConfirm: z.string().min(8, "비밀번호가 일치하지 않습니다."),
+    agree: z.boolean().refine((v) => v === true),
+  })
+  .refine((v) => v.password === v.passwordConfirm, {
+    message: "비밀번호가 일치하지 않습니다.",
+    path: ["passwordConfirm"],
+  });
+
+type Inputs = z.infer<typeof schema>;
+type CheckStatus = "default" | "available" | "unavailable";
+
 export default function SignupForm() {
-  const schema = z
-    .object({
-      id: z.string().email("이메일 형식으로 작성해 주세요."),
-      nickname: z.string().min(1, "닉네임을 입력해 주세요."),
-      password: z
-        .string()
-        .min(8, "비밀번호는 8자 이상, 영문과 숫자 조합이어야 합니다."),
-      passwordConfirm: z.string().min(8, "비밀번호가 일치하지 않습니다."),
-      agree: z.boolean().refine((v) => v === true),
-    })
-    .refine((v) => v.password === v.passwordConfirm, {
-      message: "비밀번호가 일치하지 않습니다.",
-      path: ["passwordConfirm"],
-    });
-
-  type Inputs = z.infer<typeof schema>;
-  type CheckStatus = "default" | "available" | "unavailable";
-
   const {
     register,
     handleSubmit,
