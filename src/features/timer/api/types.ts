@@ -9,3 +9,15 @@ export type GetTimerResponse = {
   startTime: string;
   lastUpdateTime: string;
 };
+
+export type StartTimerRequest = {
+  todayGoal: string;
+  tasks: string[];
+};
+
+export type StartTimerResponse = {
+  message: string;
+  studyLogId: string;
+  timerId: string;
+  startTime: string;
+};
