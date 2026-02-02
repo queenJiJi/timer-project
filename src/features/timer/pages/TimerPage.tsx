@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function TimerPage() {
   const navigate = useNavigate();
-  const isLoggedin = useAuthStore((s) => s.isAuthed);
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
 
   const { data, isFetched } = useGetActiveTimer();
 
@@ -38,7 +38,7 @@ export default function TimerPage() {
   const { hh, mm, ss } = useMemo(() => msToHMS(totalMs), [totalMs]);
 
   const onPlay = () => {
-    if (!isLoggedin) {
+    if (!isLoggedIn) {
       setLoginModalOpen(true);
       return;
     }
@@ -57,11 +57,11 @@ export default function TimerPage() {
         onStop={() => setTimerState("idle")}
         title={
           <h1 className="text-[72px] font-bold tracking-[0.08em] text-mainColor/30">
-            {isLoggedin ? "오늘도 열심히 달려봐요!" : "WELCOME"}
+            {isLoggedIn ? "오늘도 열심히 달려봐요!" : "WELCOME"}
           </h1>
         }
         subtitle={
-          !isLoggedin ? (
+          !isLoggedIn ? (
             <p className="mt-[10px] text-[14px] text-secondColor">
               DevTime과 함께하는 건강한 집중 루틴!
             </p>

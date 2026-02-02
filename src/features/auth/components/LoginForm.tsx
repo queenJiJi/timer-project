@@ -45,7 +45,7 @@ export default function LoginForm() {
     open: boolean;
     type: "error" | "duplicate" | null;
   }>({ open: false, type: null });
-  const setAuthed = useAuthStore((s) => s.setAuthed);
+  const setLoggedIn = useAuthStore((s) => s.setLoggedIn);
   const [nextPath, setNextPath] = useState<string>("/");
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
@@ -61,7 +61,7 @@ export default function LoginForm() {
         accessToken: res.accessToken,
         refreshToken: res.refreshToken,
       });
-      setAuthed(true); // 상태 저장
+      setLoggedIn(true); // 상태 저장
       const computeNext = res.isFirstLogin ? "/profile" : "/";
 
       if (res.isDuplicateLogin) {

@@ -7,11 +7,11 @@ import useTimerTicker from "@/features/timer/model/useTimerTicker";
 export default function AppShell() {
   useTimerTicker(); // 앱전체에서 타이머 진행
 
-  const isAuthed = useAuthStore((s) => s.isAuthed);
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
   const { data } = useGetProfile();
 
   const user =
-    isAuthed && data
+    isLoggedIn && data
       ? { name: data.nickname, avatarUrl: data.profile?.profileImage }
       : undefined;
 
