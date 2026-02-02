@@ -21,7 +21,7 @@ export default function Header({ user }: Props) {
         {/* 왼쪽 영역 */}
         <div className="flex items-center gap-10">
           {/*  DevTime 로고를 클릭하면 타이머 페이지로 이동 */}
-          <Link to="/timer">
+          <Link to="/">
             <img src={logo_horizontal} alt="DevTime" />
           </Link>
           <nav className="flex items-center gap-9 text-[16px] text-secondColor">
