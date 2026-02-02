@@ -16,7 +16,12 @@ type TimerStore = {
   lastTickAt: number | null; // 클라이언트 tick 기준
 
   hydrateFromServer: (data: GetTimerResponse) => void;
-  setTimerState: (s: TimerRunState) => void;
+
+  play: () => void;
+  pause: () => void;
+  stop: () => void;
+
+  // setTimerState: (s: TimerRunState) => void;
   tick: (now: number) => void;
   reset: () => void;
 };
@@ -24,7 +29,6 @@ type TimerStore = {
 export const useTimerStore = create<TimerStore>((set, get) => ({
   timerId: null,
   studyLogId: null,
-
   timerState: "idle",
 
   baseMs: 0,
@@ -45,14 +49,35 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
     });
   },
 
-  setTimerState: (s) => {
+  play: () => {
     const now = Date.now();
     set({
-      timerState: s,
-      // running 시작/재개할 때 tick 기준점을 now로 잡아서 계산
-      lastTickAt: s === "running" ? now : null,
+      timerState: "running",
+      lastTickAt: now,
     });
   },
+
+  pause: () => {
+    set({
+      timerState: "paused",
+      lastTickAt: null,
+    });
+  },
+  stop: () => {
+    set({
+      timerState: "idle",
+      lastTickAt: null,
+    });
+  },
+
+  // setTimerState: (s) => {
+  //   const now = Date.now();
+  //   set({
+  //     timerState: s,
+  //     // running 시작/재개할 때 tick 기준점을 now로 잡아서 계산
+  //     lastTickAt: s === "running" ? now : null,
+  //   });
+  // },
 
   tick: (now) => {
     const { timerState, lastTickAt, totalMs } = get();

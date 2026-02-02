@@ -14,12 +14,16 @@ export default function TimerPage() {
   const { data, isFetched } = useGetActiveTimer();
 
   const timerState = useTimerStore((s) => s.timerState);
-  const setTimerState = useTimerStore((s) => s.setTimerState);
+  // const setTimerState = useTimerStore((s) => s.setTimerState);
   const totalMs = useTimerStore((s) => s.totalMs);
   const timerId = useTimerStore((s) => s.timerId);
 
   const hydrateFromServer = useTimerStore((s) => s.hydrateFromServer);
   const reset = useTimerStore((s) => s.reset);
+
+  const play = useTimerStore((s) => s.play);
+  const pause = useTimerStore((s) => s.pause);
+  const stop = useTimerStore((s) => s.stop);
 
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
@@ -42,8 +46,8 @@ export default function TimerPage() {
       setLoginModalOpen(true);
       return;
     }
-
-    setTimerState("running"); // 로그인 상태면 타이머 시작가능
+    play(); // 로그인 상태면 타이머 시작 가능
+    // setTimerState("running"); // 로그인 상태면 타이머 시작가능
   };
   return (
     <>
@@ -53,8 +57,8 @@ export default function TimerPage() {
         ss={ss}
         timerState={timerState}
         onPlay={onPlay}
-        onPause={() => setTimerState("paused")}
-        onStop={() => setTimerState("idle")}
+        onPause={pause}
+        onStop={stop}
         title={
           <h1 className="text-[72px] font-bold tracking-[0.08em] text-mainColor/30">
             {isLoggedIn ? "오늘도 열심히 달려봐요!" : "WELCOME"}
