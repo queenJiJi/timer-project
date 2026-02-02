@@ -6,6 +6,7 @@ import { msToHMS } from "../lib/calculateTimer";
 import { useAuthStore } from "@/shared/auth/authStore";
 import { AlertModal } from "@/shared/ui/Modal";
 import { useNavigate } from "react-router-dom";
+import { useShallow } from "zustand/shallow";
 
 export default function TimerPage() {
   const navigate = useNavigate();
@@ -13,17 +14,27 @@ export default function TimerPage() {
 
   const { data, isFetched } = useGetActiveTimer();
 
-  const timerState = useTimerStore((s) => s.timerState);
-  // const setTimerState = useTimerStore((s) => s.setTimerState);
-  const totalMs = useTimerStore((s) => s.totalMs);
-  const timerId = useTimerStore((s) => s.timerId);
-
-  const hydrateFromServer = useTimerStore((s) => s.hydrateFromServer);
-  const reset = useTimerStore((s) => s.reset);
-
-  const play = useTimerStore((s) => s.play);
-  const pause = useTimerStore((s) => s.pause);
-  const stop = useTimerStore((s) => s.stop);
+  const {
+    timerState,
+    totalMs,
+    timerId,
+    hydrateFromServer,
+    reset,
+    play,
+    pause,
+    stop,
+  } = useTimerStore(
+    useShallow((s) => ({
+      timerState: s.timerState,
+      totalMs: s.totalMs,
+      timerId: s.timerId,
+      hydrateFromServer: s.hydrateFromServer,
+      reset: s.reset,
+      play: s.play,
+      pause: s.pause,
+      stop: s.stop,
+    })),
+  );
 
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
@@ -47,7 +58,6 @@ export default function TimerPage() {
       return;
     }
     play(); // 로그인 상태면 타이머 시작 가능
-    // setTimerState("running"); // 로그인 상태면 타이머 시작가능
   };
   return (
     <>

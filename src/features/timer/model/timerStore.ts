@@ -21,7 +21,6 @@ type TimerStore = {
   pause: () => void;
   stop: () => void;
 
-  // setTimerState: (s: TimerRunState) => void;
   tick: (now: number) => void;
   reset: () => void;
 };
@@ -69,15 +68,6 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
       lastTickAt: null,
     });
   },
-
-  // setTimerState: (s) => {
-  //   const now = Date.now();
-  //   set({
-  //     timerState: s,
-  //     // running 시작/재개할 때 tick 기준점을 now로 잡아서 계산
-  //     lastTickAt: s === "running" ? now : null,
-  //   });
-  // },
 
   tick: (now) => {
     const { timerState, lastTickAt, totalMs } = get();
