@@ -6,21 +6,23 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import z from "zod";
 import { useLoginMutations } from "../model/useLoginMutation";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { AlertModal } from "@/shared/ui/Modal";
+import { useAuthStore } from "@/shared/auth/authStore";
+
+const schema = z.object({
+  id: z
+    .string()
+    .min(1, "이메일을 입력해 주세요.")
+    .email("이메일 형식으로 작성해 주세요."),
+  password: z
+    .string()
+    .min(1, "비밀번호를 입력해 주세요.")
+    .min(8, "비밀번호는 8자 이상, 영문과 숫자 조합이어야 합니다."),
+});
+type Inputs = z.infer<typeof schema>;
 
 export default function LoginForm() {
-  const schema = z.object({
-    id: z
-      .string()
-      .min(1, "이메일을 입력해 주세요.")
-      .email("이메일 형식으로 작성해 주세요."),
-    password: z
-      .string()
-      .min(1, "비밀번호를 입력해 주세요.")
-      .min(8, "비밀번호는 8자 이상, 영문과 숫자 조합이어야 합니다."),
-  });
-  type Inputs = z.infer<typeof schema>;
-
   const {
     register,
     handleSubmit,
@@ -39,36 +41,40 @@ export default function LoginForm() {
   const idRegister = register("id");
   const loginMutation = useLoginMutations();
   const canSubmit = isValid && !isSubmitting;
+  const [modal, setModal] = useState<{
+    open: boolean;
+    type: "error" | "duplicate" | null;
+  }>({ open: false, type: null });
+  const setAuthed = useAuthStore((s) => s.setAuthed);
+  const [nextPath, setNextPath] = useState<string>("/timer");
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
+      // 로그인 성공 시
       const res = await loginMutation.mutateAsync({
         email: data.id,
         password: data.password,
       });
 
       tokenStorage.setTokens({
+        // 토큰 저장
         accessToken: res.accessToken,
         refreshToken: res.refreshToken,
       });
+      setAuthed(true); // 상태 저장
+      const computeNext = res.isFirstLogin ? "/profile" : "/timer";
 
       if (res.isDuplicateLogin) {
-        //TODO: 중복 로그인이 불가하다는 모달 띄우기
-        alert("중복 로그인이 불가능합니다.");
+        // 중복 로그인된 경우
+        setNextPath(computeNext);
+        setModal({ open: true, type: "duplicate" });
+        return;
       }
 
-      if (res.isFirstLogin) {
-        // 최초 로그인 시 프로필 설정 페이지로 이동
-        navigate("/profile", { replace: true });
-      } else {
-        // 메인페이지(타이머페이지)로 이동
-        navigate("/", { replace: true });
-      }
-    } catch (error) {
-      //TODO: 에러 모달 띄우기
-      alert("로그인 정보를 다시 확인해 주세요");
-      console.log(error);
-      setTimeout(() => emailRef.current?.focus(), 0);
+      // 중복 로그인이 아니라면 바로 이동
+      navigate(computeNext, { replace: true });
+    } catch {
+      setModal({ open: true, type: "error" });
     }
   };
 
@@ -142,6 +148,34 @@ export default function LoginForm() {
           <Link to="/auth/signup">회원가입</Link>
         </div>
       </form>
+
+      {/* 로그인 실패 모달 */}
+      <AlertModal
+        open={modal.open && modal.type === "error"}
+        title="로그인 정보를 다시 확인해 주세요"
+        onConfirm={() => {
+          setModal({ open: false, type: null });
+          setTimeout(() => emailRef.current?.focus(), 0);
+        }}
+        confirmText="확인"
+        buttonWidth="w-full"
+        fullButton={true}
+        // confirmFullWidth={true}
+      />
+      {/* 중복 로그인 모달 */}
+      <AlertModal
+        open={modal.open && modal.type === "duplicate"}
+        title="중복 로그인이 불가능합니다."
+        description="다른 기기에 중복 로그인 된 상태입니다. [확인] 버튼을 누르면 다른 기기에서 강제 로그아웃되며, 진행중이던 타이머가 없다면 기록이 자동 삭제됩니다."
+        onConfirm={() => {
+          setModal({ open: false, type: null });
+          navigate(nextPath, { replace: true });
+        }}
+        align="left"
+        // confirmButtonSize="sm"
+        // confirmFullWidth={false}
+        confirmText="확인"
+      />
     </section>
   );
 }
