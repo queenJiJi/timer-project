@@ -1,13 +1,14 @@
 import type React from "react";
 import TimeCard from "./TimeCard";
-import TimerControls, { type TimerState } from "./TimerControls";
+import TimerControls from "./TimerControls";
 import doubledotIcon from "@/assets/doubledot-icon.png";
+import type { TimerRunState } from "../model/timerStore";
 
 type Props = {
   hh: string;
   mm: string;
   ss: string;
-  timerState: TimerState;
+  timerState: TimerRunState;
   onPlay: () => void;
   onPause: () => void;
   onStop: () => void;

@@ -20,3 +20,10 @@ export function sumSplitTimes(data: GetTimerResponse) {
     0,
   );
 }
+
+export function calExtraMs(data: GetTimerResponse) {
+  const last = data.lastUpdateTime ? Date.parse(data.lastUpdateTime) : NaN;
+  const extraMs = Number.isFinite(last) ? Math.max(0, Date.now() - last) : 0;
+
+  return extraMs;
+}

@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import type { GetTimerResponse } from "../api/types";
-import { sumSplitTimes } from "../lib/calculateTimer";
+import type { GetTimerResponse, StartTimerResponse } from "../api/types";
+import { calExtraMs, sumSplitTimes } from "../lib/calculateTimer";
 
 export type TimerRunState = "idle" | "running" | "paused";
 
@@ -16,6 +16,7 @@ type TimerStore = {
   lastTickAt: number | null; // 클라이언트 tick 기준
 
   hydrateFromServer: (data: GetTimerResponse) => void;
+  startFromServer: (data: StartTimerResponse) => void;
 
   play: () => void;
   pause: () => void;
@@ -36,15 +37,38 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
   lastTickAt: null,
 
   hydrateFromServer: (data) => {
+    // 이미 존재하는 타이머 상태 복원
     const baseMs = sumSplitTimes(data);
+    const serverTotal = baseMs + calExtraMs(data);
+
+    const current = get(); // 현재 store값
+    const mergedTotal =
+      current.timerId === data.timerId
+        ? Math.max(current.totalMs, serverTotal)
+        : serverTotal;
+
     set({
       timerId: data.timerId,
       studyLogId: data.studyLogId,
       baseMs,
-      totalMs: baseMs,
+      totalMs: mergedTotal,
       lastUpdateTime: data.lastUpdateTime ?? null,
-      timerState: "paused",
-      lastTickAt: null,
+      timerState: "running",
+      lastTickAt: Date.now(),
+    });
+  },
+
+  startFromServer: (data) => {
+    // 새로운 타이머 시작 = 서버에서 시작생성 성공 시 세팅
+    const now = Date.now();
+    set({
+      timerId: data.timerId,
+      studyLogId: data.studyLogId,
+      baseMs: 0,
+      totalMs: 0,
+      lastUpdateTime: data.startTime,
+      timerState: "running",
+      lastTickAt: now,
     });
   },
 

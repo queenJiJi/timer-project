@@ -7,6 +7,7 @@ import { useAuthStore } from "@/shared/auth/authStore";
 import { AlertModal } from "@/shared/ui/Modal";
 import { useNavigate } from "react-router-dom";
 import { useShallow } from "zustand/shallow";
+import useStartTimerMutation from "../model/useStartTimerMutation";
 
 export default function TimerPage() {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ export default function TimerPage() {
     totalMs,
     timerId,
     hydrateFromServer,
+    startFromServer,
     reset,
     play,
     pause,
@@ -29,6 +31,7 @@ export default function TimerPage() {
       totalMs: s.totalMs,
       timerId: s.timerId,
       hydrateFromServer: s.hydrateFromServer,
+      startFromServer: s.startFromServer,
       reset: s.reset,
       play: s.play,
       pause: s.pause,
@@ -37,6 +40,7 @@ export default function TimerPage() {
   );
 
   const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const startTimerMutation = useStartTimerMutation();
 
   useEffect(() => {
     if (!isFetched) return; // 아직 결과 확정전이라면 아무것도 하지 않음
@@ -52,13 +56,25 @@ export default function TimerPage() {
 
   const { hh, mm, ss } = useMemo(() => msToHMS(totalMs), [totalMs]);
 
-  const onPlay = () => {
+  const onPlay = async () => {
     if (!isLoggedIn) {
+      // 로그인 안했다면 로그인 유도 모달 띄우기
       setLoginModalOpen(true);
       return;
     }
-    play(); // 로그인 상태면 타이머 시작 가능
+    // 로그인 상태면
+    if (timerState !== "idle") {
+      // 이미 running/paused이면 그냥 play(재개)
+      play(); // 타이머 시작
+      return;
+    }
+
+    // Idle이면 모달-> POST-> 성공하면 startFromServer로 store세팅
+    const body = { todayGoal: "공부", tasks: ["코테 3문항"] }; //TODO: 모달에서 실제 값 받아서 넣기
+    const res = await startTimerMutation.mutateAsync(body);
+    startFromServer(res); // 서버에서 timerId 받아서 store 세팅 -> running 시작
   };
+
   return (
     <>
       <TimerView
