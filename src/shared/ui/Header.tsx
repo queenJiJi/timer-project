@@ -1,20 +1,14 @@
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import logo_horizontal from "@/assets/logo_horizontal.png";
-import useLogoutMutation from "@/features/auth/model/useLogoutMutation";
+
+import useLogout from "@/features/auth/model/useLogout";
 
 type Props = {
   user?: { name: string; avatarUrl?: string };
 };
 export default function Header({ user }: Props) {
-  const logoutMutation = useLogoutMutation();
-  const navigate = useNavigate();
-  const onLogout = async () => {
-    try {
-      await logoutMutation.mutateAsync();
-    } finally {
-      navigate("/", { replace: true });
-    }
-  };
+  const { onLogout } = useLogout();
+
   return (
     <header className="w-full">
       <div className="mx-auto flex h-[72px] w-full max-w-[1200px] items-center justify-between px-10">
