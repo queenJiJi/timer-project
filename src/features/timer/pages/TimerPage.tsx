@@ -8,10 +8,12 @@ import { AlertModal } from "@/shared/ui/Modal";
 import { useNavigate } from "react-router-dom";
 import { useShallow } from "zustand/shallow";
 import useStartTimerMutation from "../model/useStartTimerMutation";
+import { TodoModal } from "../modals/TodoModal";
 
 export default function TimerPage() {
   const navigate = useNavigate();
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
+  const [todoModalOpen, setTodoModalOpen] = useState(false);
 
   const { data, isFetched } = useGetActiveTimer();
 
@@ -69,11 +71,18 @@ export default function TimerPage() {
       return;
     }
 
-    // Idle이면 모달-> POST-> 성공하면 startFromServer로 store세팅
-    const body = { todayGoal: "공부", tasks: ["코테 3문항"] }; //TODO: 모달에서 실제 값 받아서 넣기
-    const res = await startTimerMutation.mutateAsync(body);
-    startFromServer(res); // 서버에서 timerId 받아서 store 세팅 -> running 시작
+    // Idle이면 ToDo 모달 오픈-> POST-> 성공하면 startFromServer로 store세팅
+    setTodoModalOpen(true);
   };
+
+  const onTodoSubmit = async (body: { todayGoal: string; tasks: string[] }) => {
+    const res = await startTimerMutation.mutateAsync(body);
+    startFromServer(res);
+    setTodoModalOpen(false); // 서버에서 timerId 받아서 store 세팅 -> running 시작
+  };
+  // const body = { todayGoal: "공부", tasks: ["코테 3문항"] }; //TODO: 모달에서 실제 값 받아서 넣기
+  // const res = await startTimerMutation.mutateAsync(body);
+  // startFromServer(res);
 
   return (
     <>
@@ -113,6 +122,12 @@ export default function TimerPage() {
           setLoginModalOpen(false);
           navigate("/auth/login");
         }}
+      />
+
+      <TodoModal
+        open={todoModalOpen}
+        onClose={() => setTodoModalOpen(false)}
+        onSubmit={onTodoSubmit}
       />
     </>
   );
