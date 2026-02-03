@@ -40,14 +40,13 @@ export default function TimerPage() {
       stop: s.stop,
     })),
   );
-
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const startTimerMutation = useStartTimerMutation();
 
   useEffect(() => {
     if (!isFetched) return; // 아직 결과 확정전이라면 아무것도 하지 않음
     if (data) {
-      hydrateFromServer(data); // GET 성공 시 => store에 반영 및 세팅
+      if (timerState === "idle") hydrateFromServer(data); // GET 성공 시 => store에 반영 및 세팅(단 첫 클릭 시)
       return;
     }
     // 서버에 activetimer 없더라도(404/null) 이미 타이머가 클라이언트에서 돌고있거나(혹은 paused), timerId가 있으면 유지

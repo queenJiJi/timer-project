@@ -53,8 +53,8 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
       baseMs,
       totalMs: mergedTotal,
       lastUpdateTime: data.lastUpdateTime ?? null,
-      timerState: "running",
-      lastTickAt: Date.now(),
+      timerState: current.timerState === "paused" ? "paused" : "running",
+      lastTickAt: current.timerState === "paused" ? null : Date.now(),
     });
   },
 
