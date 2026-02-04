@@ -22,7 +22,7 @@ export default function TimerControls({
   const isPauseActive = timerState === "running";
   const isStopActive = timerState !== "idle";
   return (
-    <div className="mt-20 ml-[270px] flex items-center gap-20">
+    <div className="mt-20 flex items-center gap-20">
       <button
         type="button"
         aria-label="재생"

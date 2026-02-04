@@ -21,3 +21,7 @@ export type StartTimerResponse = {
   timerId: string;
   startTime: string;
 };
+
+export type DeleteTimerResponse = {
+  message: string;
+};

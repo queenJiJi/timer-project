@@ -1,5 +1,6 @@
 import { request } from "@/shared/api/request";
 import type {
+  DeleteTimerResponse,
   GetTimerResponse,
   StartTimerRequest,
   StartTimerResponse,
@@ -20,6 +21,14 @@ export const timerAPI = {
       method: "POST",
       auth: true,
       body: JSON.stringify(body),
+    });
+  },
+
+  // 타이머 삭제/초기화
+  deleteTimer(timerId: string) {
+    return request<DeleteTimerResponse>(`/api/timers/${timerId}`, {
+      method: "DELETE",
+      auth: true,
     });
   },
 };

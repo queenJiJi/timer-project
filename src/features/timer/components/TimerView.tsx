@@ -49,21 +49,24 @@ export default function TimerView({
         <TimeCard label="SECONDS" value={ss} />
       </div>
 
-      <div className="flex items-center justify-center gap-[134px]">
+      <div className="relative w-full">
         {/* Controls */}
-        <TimerControls
-          timerState={timerState}
-          onPlay={onPlay}
-          onPause={onPause}
-          onStop={onStop}
-        />
-
+        <div className="absolute left-1/2 -translate-x-1/2">
+          <TimerControls
+            timerState={timerState}
+            onPlay={onPlay}
+            onPause={onPause}
+            onStop={onStop}
+          />
+        </div>
         {/* TimerActions - Todo,reset */}
-        <TimerActionButtons
-          timerState={timerState}
-          onOpenTodo={onOpenTodo}
-          onReset={onReset}
-        />
+        <div className="ml-auto flex justify-end">
+          <TimerActionButtons
+            timerState={timerState}
+            onOpenTodo={onOpenTodo}
+            onReset={onReset}
+          />
+        </div>
       </div>
     </main>
   );

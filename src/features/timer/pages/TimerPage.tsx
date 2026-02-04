@@ -9,6 +9,9 @@ import { useNavigate } from "react-router-dom";
 import { useShallow } from "zustand/shallow";
 import useStartTimerMutation from "../model/useStartTimerMutation";
 import { TodoModal } from "../modals/TodoModal";
+import useResetTimerMutation from "../model/useResetTimerMutation";
+import { useQueryClient } from "@tanstack/react-query";
+import { timerQueryKeys } from "../model/query-service";
 
 export default function TimerPage() {
   const navigate = useNavigate();
@@ -45,6 +48,9 @@ export default function TimerPage() {
   const [resetModalOpen, setResetModalOpen] = useState(false);
   const onOpenTodo = () => setTodoModalOpen(true); //TODO: 일단 임시로 start용 TodoModal 열기
   const onReset = () => setResetModalOpen(true);
+
+  const resetTimerMutation = useResetTimerMutation();
+  const qc = useQueryClient();
 
   useEffect(() => {
     if (!isFetched) return; // 아직 결과 확정전이라면 아무것도 하지 않음
@@ -141,8 +147,23 @@ export default function TimerPage() {
         align="left"
         buttonSize="md"
         onCancel={() => setResetModalOpen(false)}
-        onConfirm={() => {
+        onConfirm={async () => {
           setResetModalOpen(false);
+
+          if (!timerId) {
+            //timerId 없으면 서버에 지울 게 없으니 로컬만 초기화
+            qc.setQueryData(timerQueryKeys.active(), null);
+            reset();
+            return;
+          }
+
+          try {
+            await resetTimerMutation.mutateAsync(timerId); // 서버 타이머 삭제
+            qc.setQueryData(timerQueryKeys.active(), null); //캐시 삭제
+            reset(); // 로컬(store) 초기화
+          } catch (e) {
+            console.error(e);
+          }
           reset();
         }}
       />
