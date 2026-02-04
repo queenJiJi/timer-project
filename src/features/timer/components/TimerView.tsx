@@ -3,6 +3,7 @@ import TimeCard from "./TimeCard";
 import TimerControls from "./TimerControls";
 import doubledotIcon from "@/assets/doubledot-icon.png";
 import type { TimerRunState } from "../model/timerStore";
+import TimerActionButtons from "./TimerActionButtons";
 
 type Props = {
   hh: string;
@@ -14,6 +15,8 @@ type Props = {
   onStop: () => void;
   title: React.ReactNode;
   subtitle?: React.ReactNode;
+  onOpenTodo: () => void;
+  onReset: () => void;
 };
 
 export default function TimerView({
@@ -26,6 +29,8 @@ export default function TimerView({
   onStop,
   title,
   subtitle,
+  onOpenTodo,
+  onReset,
 }: Props) {
   return (
     <main className="mx-auto flex w-full max-w-[1200px] flex-col items-center px-10 pt-[96px]">
@@ -44,13 +49,22 @@ export default function TimerView({
         <TimeCard label="SECONDS" value={ss} />
       </div>
 
-      {/* Controls */}
-      <TimerControls
-        timerState={timerState}
-        onPlay={onPlay}
-        onPause={onPause}
-        onStop={onStop}
-      />
+      <div className="flex items-center justify-center gap-[134px]">
+        {/* Controls */}
+        <TimerControls
+          timerState={timerState}
+          onPlay={onPlay}
+          onPause={onPause}
+          onStop={onStop}
+        />
+
+        {/* TimerActions - Todo,reset */}
+        <TimerActionButtons
+          timerState={timerState}
+          onOpenTodo={onOpenTodo}
+          onReset={onReset}
+        />
+      </div>
     </main>
   );
 }

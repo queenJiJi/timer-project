@@ -42,6 +42,9 @@ export default function TimerPage() {
   );
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const startTimerMutation = useStartTimerMutation();
+  const [resetModalOpen, setResetModalOpen] = useState(false);
+  const onOpenTodo = () => setTodoModalOpen(true); //TODO: 일단 임시로 start용 TodoModal 열기
+  const onReset = () => setResetModalOpen(true);
 
   useEffect(() => {
     if (!isFetched) return; // 아직 결과 확정전이라면 아무것도 하지 않음
@@ -79,9 +82,6 @@ export default function TimerPage() {
     startFromServer(res);
     setTodoModalOpen(false); // 서버에서 timerId 받아서 store 세팅 -> running 시작
   };
-  // const body = { todayGoal: "공부", tasks: ["코테 3문항"] }; //TODO: 모달에서 실제 값 받아서 넣기
-  // const res = await startTimerMutation.mutateAsync(body);
-  // startFromServer(res);
 
   return (
     <>
@@ -105,6 +105,8 @@ export default function TimerPage() {
             </p>
           ) : null
         }
+        onOpenTodo={onOpenTodo}
+        onReset={onReset}
       />
 
       <AlertModal
@@ -127,6 +129,22 @@ export default function TimerPage() {
         open={todoModalOpen}
         onClose={() => setTodoModalOpen(false)}
         onSubmit={onTodoSubmit}
+      />
+
+      <AlertModal
+        open={resetModalOpen}
+        title="기록을 초기화 하시겠습니까?"
+        description="진행되던 타이머 기록은 삭제되고, 복구가 불가능합니다. 계속 초기화 할까요?"
+        cancelButton
+        cancelText="취소"
+        confirmText="초기화하기"
+        align="left"
+        buttonSize="md"
+        onCancel={() => setResetModalOpen(false)}
+        onConfirm={() => {
+          setResetModalOpen(false);
+          reset();
+        }}
       />
     </>
   );
