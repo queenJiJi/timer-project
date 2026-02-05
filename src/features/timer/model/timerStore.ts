@@ -87,14 +87,19 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
         ? Math.max(current.totalMs, serverTotal)
         : serverTotal;
 
+    const now = Date.now();
+    const isPaused = current.timerState === "paused";
+
     set({
       timerId: data.timerId,
       studyLogId: data.studyLogId,
       baseMs,
       totalMs: mergedTotal,
       lastUpdateTime: data.lastUpdateTime ?? null,
-      timerState: current.timerState === "paused" ? "paused" : "running",
-      lastTickAt: current.timerState === "paused" ? null : Date.now(),
+      splitTimes: data.splitTimes ?? [],
+      timerState: isPaused ? "paused" : "running",
+      lastTickAt: isPaused ? null : now,
+      segmentStartAtMs: isPaused ? null : now,
     });
   },
 

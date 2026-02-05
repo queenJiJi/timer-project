@@ -16,8 +16,11 @@ import {
 import useResetTimerMutation from "../model/useResetTimerMutation";
 import { useQueryClient } from "@tanstack/react-query";
 import { timerQueryKeys } from "../model/query-service";
+import useTimerPolling from "../model/useTimerPolling";
+import usePauseTimerMutation from "../model/usePauseTimerMutation";
 
 export default function TimerPage() {
+  useTimerPolling();
   const navigate = useNavigate();
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
   const [todoModalOpen, setTodoModalOpen] = useState(false);
@@ -54,6 +57,7 @@ export default function TimerPage() {
   const [resetModalOpen, setResetModalOpen] = useState(false);
 
   const startTimerMutation = useStartTimerMutation();
+  const updateTimerMutation = usePauseTimerMutation();
   const resetTimerMutation = useResetTimerMutation();
   const qc = useQueryClient();
 
@@ -70,10 +74,6 @@ export default function TimerPage() {
   const openStopModal = () => {
     setTodoModalMode("stop");
     setTodoModalOpen(true);
-  };
-
-  const onOpenTodo = () => {
-    openManageModal();
   };
 
   const onReset = () => setResetModalOpen(true);
@@ -104,11 +104,18 @@ export default function TimerPage() {
       play(); // 타이머 시작
       return;
     }
-
     // Idle이면 ToDo 모달 오픈-> POST-> 성공하면 startFromServer로 store세팅
     openStartModal();
-    // setTodoModalMode("start");
-    // setTodoModalOpen(true);
+  };
+
+  const onPause = async () => {
+    pause(); // 내부에서 flushRunningSegment 수행
+
+    if (!timerId) return;
+    await updateTimerMutation.mutateAsync({
+      timerId,
+      body: { splitTimes: useTimerStore.getState().splitTimes },
+    });
   };
 
   const onStop = () => {
@@ -138,7 +145,7 @@ export default function TimerPage() {
         ss={ss}
         timerState={timerState}
         onPlay={onPlay}
-        onPause={pause}
+        onPause={onPause}
         onStop={onStop}
         title={
           <h1 className="text-[72px] font-bold tracking-[0.08em] text-mainColor/30">
@@ -152,7 +159,7 @@ export default function TimerPage() {
             </p>
           ) : null
         }
-        onOpenTodo={onOpenTodo} // manage모드 todomodal로 열림
+        onOpenTodo={openManageModal} // manage모드 todomodal로 열림
         onReset={onReset}
       />
 

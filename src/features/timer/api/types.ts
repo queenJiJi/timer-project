@@ -21,6 +21,16 @@ export type StartTimerResponse = {
   timerId: string;
   startTime: string;
 };
+export type PauseTimerRequest = {
+  splitTimes: SplitTime[];
+};
+
+export type PauseTimerResponse = {
+  message: string;
+  startTime: string;
+  splitTimes: SplitTime[];
+  lastUpdateTime: string;
+};
 
 export type DeleteTimerResponse = {
   message: string;

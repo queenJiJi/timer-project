@@ -20,15 +20,17 @@ export default function StopPanel({ open, onClose }: Props) {
   const qc = useQueryClient();
   const stopMutation = useStopTimerMutation();
 
-  const { storeTasks, setTasks, timerId, splitTimes, reset } = useTimerStore(
-    useShallow((s) => ({
-      storeTasks: s.tasks,
-      setTasks: s.setTasks,
-      timerId: s.timerId,
-      splitTimes: s.splitTimes ?? [],
-      reset: s.reset,
-    })),
-  );
+  const { storeTasks, setTasks, timerId, flushRunningSegment, reset } =
+    useTimerStore(
+      useShallow((s) => ({
+        storeTasks: s.tasks,
+        setTasks: s.setTasks,
+        timerId: s.timerId,
+        splitTimes: s.splitTimes ?? [],
+        flushRunningSegment: s.flushRunningSegment,
+        reset: s.reset,
+      })),
+    );
 
   const [mode, setMode] = useState<"view" | "edit">("view");
   const [isComposing, setIsComposing] = useState(false);
@@ -39,11 +41,11 @@ export default function StopPanel({ open, onClose }: Props) {
 
   useEffect(() => {
     if (!open) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMode("view");
     setIsComposing(false);
     setReview("");
     d.resetEditing();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const canSaveTasks = useMemo(() => {
@@ -71,27 +73,26 @@ export default function StopPanel({ open, onClose }: Props) {
     }));
     setTasks(finalTasks);
 
-    try {
-      // 서버에 반영
-      await stopMutation.mutateAsync({
-        timerId,
-        body: {
-          splitTimes: splitTimes ?? [],
-          review: reviewTrimmed,
-          tasks: finalTasks.map((t) => ({
-            content: t.content,
-            isCompleted: !!t.isCompleted,
-          })),
-        },
-      });
+    flushRunningSegment(); // 마지막 구간 반영
+    const finalSplitTimes = useTimerStore.getState().splitTimes;
 
-      // 성공 시: 타이머 초기 상태 + activeTimer 캐시 제거
-      qc.setQueryData(timerQueryKeys.active(), null);
-      reset();
-      onClose();
-    } catch (e) {
-      console.error(e);
-    }
+    // 서버에 반영
+    await stopMutation.mutateAsync({
+      timerId,
+      body: {
+        splitTimes: finalSplitTimes,
+        review: reviewTrimmed,
+        tasks: finalTasks.map((t) => ({
+          content: t.content,
+          isCompleted: !!t.isCompleted,
+        })),
+      },
+    });
+
+    // 성공 시: 타이머 초기 상태 + activeTimer 캐시 제거
+    qc.setQueryData(timerQueryKeys.active(), null);
+    reset();
+    onClose();
   };
 
   const footerButtonUI = (
