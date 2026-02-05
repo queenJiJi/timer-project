@@ -1,9 +1,4 @@
-import {
-  Dialog,
-  DialogContent,
-  //   DialogHeader,
-  //   DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import type { StartBody, TodoModalMode } from "./types";
 import StartPanel from "./StartPanel";
 import ManagePanel from "./ManagePanel";
@@ -15,18 +10,14 @@ type Props = {
   onClose: () => void;
 
   onSubmitStart?: (body: StartBody) => void;
-  onSubmitManage?: () => void;
   onSubmitStop?: () => void;
 };
-
-// const MAX_LEN = 30;
 
 export default function TodoModal({
   open,
   mode,
   onClose,
   onSubmitStart,
-  onSubmitManage,
   onSubmitStop,
 }: Props) {
   return (
@@ -43,9 +34,7 @@ export default function TodoModal({
           <StartPanel onClose={onClose} onSubmit={onSubmitStart} />
         )}
 
-        {mode === "manage" && (
-          <ManagePanel onClose={onClose} onSubmit={onSubmitManage} />
-        )}
+        {mode === "manage" && <ManagePanel open={open} onClose={onClose} />}
 
         {mode === "stop" && (
           <StopPanel onClose={onClose} onSubmit={onSubmitStop} />

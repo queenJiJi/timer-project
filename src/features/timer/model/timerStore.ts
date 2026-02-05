@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { GetTimerResponse, StartTimerResponse } from "../api/types";
 import { calExtraMs, sumSplitTimes } from "../lib/calculateTimer";
+import type { Task } from "../modals/TodoModal";
 
 export type TimerRunState = "idle" | "running" | "paused";
 
@@ -15,8 +16,12 @@ type TimerStore = {
   lastUpdateTime: string | null; // 서버값
   lastTickAt: number | null; // 클라이언트 tick 기준
 
+  tasks: Task[];
+
   hydrateFromServer: (data: GetTimerResponse) => void;
   startFromServer: (data: StartTimerResponse) => void;
+
+  setTasks: (tasks: Task[]) => void; // StartPanel submit때 작성된 tasks저장
 
   play: () => void;
   pause: () => void;
@@ -35,6 +40,8 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
   totalMs: 0,
   lastUpdateTime: null,
   lastTickAt: null,
+
+  tasks: [],
 
   hydrateFromServer: (data) => {
     // 이미 존재하는 타이머 상태 복원
@@ -71,6 +78,8 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
       lastTickAt: now,
     });
   },
+
+  setTasks: (tasks) => set({ tasks }),
 
   play: () => {
     const now = Date.now();
@@ -120,5 +129,6 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
       totalMs: 0,
       lastUpdateTime: null,
       lastTickAt: null,
+      tasks: [],
     }),
 }));

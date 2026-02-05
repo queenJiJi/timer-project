@@ -8,7 +8,11 @@ import { AlertModal } from "@/shared/ui/Modal";
 import { useNavigate } from "react-router-dom";
 import { useShallow } from "zustand/shallow";
 import useStartTimerMutation from "../model/useStartTimerMutation";
-import { TodoModal, type TodoModalMode } from "../modals/TodoModal";
+import {
+  TodoModal,
+  type StartBody,
+  type TodoModalMode,
+} from "../modals/TodoModal";
 import useResetTimerMutation from "../model/useResetTimerMutation";
 import { useQueryClient } from "@tanstack/react-query";
 import { timerQueryKeys } from "../model/query-service";
@@ -27,6 +31,7 @@ export default function TimerPage() {
     timerId,
     hydrateFromServer,
     startFromServer,
+    setTasks,
     reset,
     play,
     pause,
@@ -38,6 +43,7 @@ export default function TimerPage() {
       timerId: s.timerId,
       hydrateFromServer: s.hydrateFromServer,
       startFromServer: s.startFromServer,
+      setTasks: s.setTasks,
       reset: s.reset,
       play: s.play,
       pause: s.pause,
@@ -65,10 +71,11 @@ export default function TimerPage() {
     setTodoModalMode("stop");
     setTodoModalOpen(true);
   };
+
   const onOpenTodo = () => {
     openManageModal();
   };
-  // } setTodoModalOpen(true); //TODO: 일단 임시로 start용 TodoModal 열기
+
   const onReset = () => setResetModalOpen(true);
 
   useEffect(() => {
@@ -108,7 +115,16 @@ export default function TimerPage() {
     openStopModal();
   };
 
-  const onTodoSubmit = async (body: { todayGoal: string; tasks: string[] }) => {
+  const onTodoSubmit = async (body: StartBody) => {
+    // 먼저 로컬 tasks store에 저장
+    setTasks(
+      body.tasks.map((content) => ({
+        id: crypto.randomUUID(),
+        content,
+        isCompleted: false,
+      })),
+    );
+
     const res = await startTimerMutation.mutateAsync(body);
     startFromServer(res);
     setTodoModalOpen(false); // 서버에서 timerId 받아서 store 세팅 -> running 시작

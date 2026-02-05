@@ -4,6 +4,8 @@ import type {
   GetTimerResponse,
   StartTimerRequest,
   StartTimerResponse,
+  UpdateTasksRequest,
+  UpdateTasksResponse,
 } from "./types";
 
 export const timerAPI = {
@@ -29,6 +31,15 @@ export const timerAPI = {
     return request<DeleteTimerResponse>(`/api/timers/${timerId}`, {
       method: "DELETE",
       auth: true,
+    });
+  },
+
+  // 할일 목록 전체 업데이트
+  updateTasks(studyLogId: string, body: UpdateTasksRequest) {
+    return request<UpdateTasksResponse>(`/api/${studyLogId}/tasks`, {
+      method: "PUT",
+      auth: true,
+      body: JSON.stringify(body),
     });
   },
 };

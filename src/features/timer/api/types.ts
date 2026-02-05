@@ -25,3 +25,17 @@ export type StartTimerResponse = {
 export type DeleteTimerResponse = {
   message: string;
 };
+
+export type TaskItem = {
+  content: string;
+  isCompleted: boolean;
+};
+
+export type UpdateTasksRequest = {
+  tasks: TaskItem[];
+};
+
+export type UpdateTasksResponse = {
+  success: boolean;
+  message: string;
+};
