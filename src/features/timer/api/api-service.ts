@@ -1,11 +1,13 @@
 import { request } from "@/shared/api/request";
-import type {
-  DeleteTimerResponse,
-  GetTimerResponse,
-  StartTimerRequest,
-  StartTimerResponse,
-  UpdateTasksRequest,
-  UpdateTasksResponse,
+import {
+  type StopTimerResponse,
+  type DeleteTimerResponse,
+  type GetTimerResponse,
+  type StartTimerRequest,
+  type StartTimerResponse,
+  type StopTimerRequest,
+  type UpdateTasksRequest,
+  type UpdateTasksResponse,
 } from "./types";
 
 export const timerAPI = {
@@ -38,6 +40,15 @@ export const timerAPI = {
   updateTasks(studyLogId: string, body: UpdateTasksRequest) {
     return request<UpdateTasksResponse>(`/api/${studyLogId}/tasks`, {
       method: "PUT",
+      auth: true,
+      body: JSON.stringify(body),
+    });
+  },
+
+  // 타이머 종료
+  stopTimer(timerId: string, body: StopTimerRequest) {
+    return request<StopTimerResponse>(`/api/timers/${timerId}/stop`, {
+      method: "POST",
       auth: true,
       body: JSON.stringify(body),
     });

@@ -8,13 +8,12 @@ import Delete from "@/assets/delete-icon.png";
 import Check from "@/assets/check-icon.png";
 import { Button } from "@/shared/ui";
 import { clamp } from "@/lib/utils";
-import type { Task } from "./types";
+import { MAX_TASK_LEN, type Task } from "./types";
 
 type Props = {
   onClose: () => void;
   onSubmit?: (body: { todayGoal: string; tasks: string[] }) => void;
 };
-const MAX_LEN = 30;
 
 export default function StartPanel({ onClose, onSubmit }: Props) {
   const [todayGoal, setTodayGoal] = useState<string>("");
@@ -103,7 +102,7 @@ export default function StartPanel({ onClose, onSubmit }: Props) {
         <DialogTitle className="sr-only">오늘의 목표</DialogTitle>
         <input
           value={todayGoal}
-          onChange={(e) => setTodayGoal(clamp(e.target.value, MAX_LEN))}
+          onChange={(e) => setTodayGoal(clamp(e.target.value, MAX_TASK_LEN))}
           placeholder="오늘의 목표"
           className="
               w-full
@@ -124,7 +123,7 @@ export default function StartPanel({ onClose, onSubmit }: Props) {
           <input
             className="flex-1 bg-transparent text-[16px] text-[#4B5563] outline-none placeholder:text-[#CCD0D6] "
             value={taskInput}
-            onChange={(e) => setTaskInput(clamp(e.target.value, MAX_LEN))}
+            onChange={(e) => setTaskInput(clamp(e.target.value, MAX_TASK_LEN))}
             placeholder="할 일을 추가해 주세요."
             onCompositionStart={() => setIsComposing(true)}
             onCompositionEnd={() => setIsComposing(false)}
@@ -162,7 +161,7 @@ export default function StartPanel({ onClose, onSubmit }: Props) {
                     <input
                       value={editingValue}
                       onChange={(e) =>
-                        setEditingValue(clamp(e.target.value, MAX_LEN))
+                        setEditingValue(clamp(e.target.value, MAX_TASK_LEN))
                       }
                       className="bg-mainColor text-[16px] text-white font-semibold outline-none"
                       autoFocus

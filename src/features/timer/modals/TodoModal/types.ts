@@ -10,3 +10,5 @@ export type StartBody = {
   todayGoal: string;
   tasks: string[];
 };
+
+export const MAX_TASK_LEN = 30;

@@ -39,3 +39,15 @@ export type UpdateTasksResponse = {
   success: boolean;
   message: string;
 };
+
+export type StopTimerRequest = {
+  splitTimes: SplitTime[];
+  review: string;
+  tasks: TaskItem[];
+};
+
+export type StopTimerResponse = {
+  message: string;
+  totalTime: number;
+  endTime: string;
+};
