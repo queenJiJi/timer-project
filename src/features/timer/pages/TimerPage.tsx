@@ -8,7 +8,7 @@ import { AlertModal } from "@/shared/ui/Modal";
 import { useNavigate } from "react-router-dom";
 import { useShallow } from "zustand/shallow";
 import useStartTimerMutation from "../model/useStartTimerMutation";
-import { TodoModal } from "../modals/TodoModal";
+import { TodoModal, type TodoModalMode } from "../modals/TodoModal";
 import useResetTimerMutation from "../model/useResetTimerMutation";
 import { useQueryClient } from "@tanstack/react-query";
 import { timerQueryKeys } from "../model/query-service";
@@ -17,6 +17,7 @@ export default function TimerPage() {
   const navigate = useNavigate();
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
   const [todoModalOpen, setTodoModalOpen] = useState(false);
+  const [todoModalMode, setTodoModalMode] = useState<TodoModalMode>("start");
 
   const { data, isFetched } = useGetActiveTimer();
 
@@ -29,7 +30,7 @@ export default function TimerPage() {
     reset,
     play,
     pause,
-    stop,
+    // stop,
   } = useTimerStore(
     useShallow((s) => ({
       timerState: s.timerState,
@@ -40,17 +41,35 @@ export default function TimerPage() {
       reset: s.reset,
       play: s.play,
       pause: s.pause,
-      stop: s.stop,
+      // stop: s.stop,
     })),
   );
   const [loginModalOpen, setLoginModalOpen] = useState(false);
-  const startTimerMutation = useStartTimerMutation();
   const [resetModalOpen, setResetModalOpen] = useState(false);
-  const onOpenTodo = () => setTodoModalOpen(true); //TODO: 일단 임시로 start용 TodoModal 열기
-  const onReset = () => setResetModalOpen(true);
 
+  const startTimerMutation = useStartTimerMutation();
   const resetTimerMutation = useResetTimerMutation();
   const qc = useQueryClient();
+
+  const openStartModal = () => {
+    setTodoModalMode("start");
+    setTodoModalOpen(true);
+  };
+
+  const openManageModal = () => {
+    setTodoModalMode("manage");
+    setTodoModalOpen(true);
+  };
+
+  const openStopModal = () => {
+    setTodoModalMode("stop");
+    setTodoModalOpen(true);
+  };
+  const onOpenTodo = () => {
+    openManageModal();
+  };
+  // } setTodoModalOpen(true); //TODO: 일단 임시로 start용 TodoModal 열기
+  const onReset = () => setResetModalOpen(true);
 
   useEffect(() => {
     if (!isFetched) return; // 아직 결과 확정전이라면 아무것도 하지 않음
@@ -80,7 +99,13 @@ export default function TimerPage() {
     }
 
     // Idle이면 ToDo 모달 오픈-> POST-> 성공하면 startFromServer로 store세팅
-    setTodoModalOpen(true);
+    openStartModal();
+    // setTodoModalMode("start");
+    // setTodoModalOpen(true);
+  };
+
+  const onStop = () => {
+    openStopModal();
   };
 
   const onTodoSubmit = async (body: { todayGoal: string; tasks: string[] }) => {
@@ -98,7 +123,7 @@ export default function TimerPage() {
         timerState={timerState}
         onPlay={onPlay}
         onPause={pause}
-        onStop={stop}
+        onStop={onStop}
         title={
           <h1 className="text-[72px] font-bold tracking-[0.08em] text-mainColor/30">
             {isLoggedIn ? "오늘도 열심히 달려봐요!" : "WELCOME"}
@@ -111,7 +136,7 @@ export default function TimerPage() {
             </p>
           ) : null
         }
-        onOpenTodo={onOpenTodo}
+        onOpenTodo={onOpenTodo} // manage모드 todomodal로 열림
         onReset={onReset}
       />
 
@@ -133,8 +158,9 @@ export default function TimerPage() {
 
       <TodoModal
         open={todoModalOpen}
+        mode={todoModalMode}
         onClose={() => setTodoModalOpen(false)}
-        onSubmit={onTodoSubmit}
+        onSubmitStart={onTodoSubmit}
       />
 
       <AlertModal
