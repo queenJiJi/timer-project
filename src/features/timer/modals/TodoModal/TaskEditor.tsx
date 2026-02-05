@@ -89,10 +89,10 @@ export default function TaskEditor({
         </button>
       </div>
 
-      {/* ===== view mode ===== */}
+      {/* view mode */}
       {mode === "view" ? (
         <div>
-          <div className="mt-7 flex items-center justify-between">
+          <div className="mt-7 flex items-center justify-between ">
             <div className="text-[20px] font-bold text-[#394252]">
               할 일 목록
             </div>
@@ -134,7 +134,7 @@ export default function TaskEditor({
           {footerButtons}
         </div>
       ) : (
-        // ===== edit mode =====
+        // edit mode
         <div>
           <div className="mt-7 flex items-center justify-between">
             <div className="text-[20px] font-bold text-[#394252]">

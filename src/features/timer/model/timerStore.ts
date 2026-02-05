@@ -1,7 +1,12 @@
 import { create } from "zustand";
-import type { GetTimerResponse, StartTimerResponse } from "../api/types";
+import type {
+  GetTimerResponse,
+  SplitTime,
+  StartTimerResponse,
+} from "../api/types";
 import { calExtraMs, sumSplitTimes } from "../lib/calculateTimer";
 import type { Task } from "../modals/TodoModal";
+import { addRangeToSplitTimes } from "../lib/splitTimes";
 
 export type TimerRunState = "idle" | "running" | "paused";
 
@@ -15,6 +20,12 @@ type TimerStore = {
   totalMs: number; // 화면에 뿌릴 ms
   lastUpdateTime: string | null; // 서버값
   lastTickAt: number | null; // 클라이언트 tick 기준
+
+  splitTimes: SplitTime[];
+  segmentStartAtMs: number | null;
+
+  flushRunningSegment: () => void; // running 구간을 splitTimes에 누적
+  setSplitTimes: (v: SplitTime[]) => void;
 
   tasks: Task[];
 
@@ -40,6 +51,28 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
   totalMs: 0,
   lastUpdateTime: null,
   lastTickAt: null,
+
+  splitTimes: [],
+  segmentStartAtMs: null,
+  setSplitTimes: (v) => set({ splitTimes: v }),
+
+  flushRunningSegment: () => {
+    const { timerState, segmentStartAtMs, splitTimes } = get();
+    if (timerState !== "running") return;
+    if (segmentStartAtMs == null) return;
+
+    const now = Date.now();
+    const next = addRangeToSplitTimes({
+      splitTimes,
+      startMs: segmentStartAtMs,
+      endMs: now,
+    });
+
+    set({
+      splitTimes: next,
+      segmentStartAtMs: now, // flush 후 기준점을 now로 갱신
+    });
+  },
 
   tasks: [],
 
@@ -76,6 +109,9 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
       lastUpdateTime: data.startTime,
       timerState: "running",
       lastTickAt: now,
+
+      splitTimes: [],
+      segmentStartAtMs: now,
     });
   },
 
@@ -86,13 +122,16 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
     set({
       timerState: "running",
       lastTickAt: now,
+      segmentStartAtMs: now, // resume 시점부터 새 구간 시작
     });
   },
 
   pause: () => {
+    get().flushRunningSegment(); // pause 직전까지 누적
     set({
       timerState: "paused",
       lastTickAt: null,
+      segmentStartAtMs: null, // pause동안 구간 없음
     });
   },
   stop: () => {
@@ -130,5 +169,8 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
       lastUpdateTime: null,
       lastTickAt: null,
       tasks: [],
+
+      splitTimes: [],
+      segmentStartAtMs: null,
     }),
 }));

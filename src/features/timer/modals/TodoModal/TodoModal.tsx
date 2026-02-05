@@ -18,7 +18,6 @@ export default function TodoModal({
   mode,
   onClose,
   onSubmitStart,
-  onSubmitStop,
 }: Props) {
   return (
     <Dialog open={open}>
@@ -36,9 +35,7 @@ export default function TodoModal({
 
         {mode === "manage" && <ManagePanel open={open} onClose={onClose} />}
 
-        {mode === "stop" && (
-          <StopPanel onClose={onClose} onSubmit={onSubmitStop} />
-        )}
+        {mode === "stop" && <StopPanel open={open} onClose={onClose} />}
       </DialogContent>
     </Dialog>
   );
