@@ -35,6 +35,15 @@
   display: none; /* Chrome, Safari */
 }
 
+/* scrollbar hidden but scrollable */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

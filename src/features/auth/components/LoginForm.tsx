@@ -45,8 +45,8 @@ export default function LoginForm() {
     open: boolean;
     type: "error" | "duplicate" | null;
   }>({ open: false, type: null });
-  const setAuthed = useAuthStore((s) => s.setAuthed);
-  const [nextPath, setNextPath] = useState<string>("/timer");
+  const setLoggedIn = useAuthStore((s) => s.setLoggedIn);
+  const [nextPath, setNextPath] = useState<string>("/");
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
@@ -61,8 +61,8 @@ export default function LoginForm() {
         accessToken: res.accessToken,
         refreshToken: res.refreshToken,
       });
-      setAuthed(true); // 상태 저장
-      const computeNext = res.isFirstLogin ? "/profile" : "/timer";
+      setLoggedIn(true); // 상태 저장
+      const computeNext = res.isFirstLogin ? "/profile" : "/";
 
       if (res.isDuplicateLogin) {
         // 중복 로그인된 경우

@@ -4,10 +4,10 @@ import pauseOn from "@/assets/pause-on.png";
 import pauseOff from "@/assets/pause-off.png";
 import stopOn from "@/assets/stop-on.png";
 import stopOff from "@/assets/stop-off.png";
+import type { TimerRunState } from "../model/timerStore";
 
-export type TimerState = "idle" | "running" | "paused";
 type Props = {
-  timerState: TimerState;
+  timerState: TimerRunState;
   onPlay: () => void;
   onPause: () => void;
   onStop: () => void;
