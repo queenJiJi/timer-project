@@ -21,3 +21,43 @@ export type StartTimerResponse = {
   timerId: string;
   startTime: string;
 };
+export type PauseTimerRequest = {
+  splitTimes: SplitTime[];
+};
+
+export type PauseTimerResponse = {
+  message: string;
+  startTime: string;
+  splitTimes: SplitTime[];
+  lastUpdateTime: string;
+};
+
+export type DeleteTimerResponse = {
+  message: string;
+};
+
+export type TaskItem = {
+  content: string;
+  isCompleted: boolean;
+};
+
+export type UpdateTasksRequest = {
+  tasks: TaskItem[];
+};
+
+export type UpdateTasksResponse = {
+  success: boolean;
+  message: string;
+};
+
+export type StopTimerRequest = {
+  splitTimes: SplitTime[];
+  review: string;
+  tasks: TaskItem[];
+};
+
+export type StopTimerResponse = {
+  message: string;
+  totalTime: number;
+  endTime: string;
+};

@@ -4,7 +4,6 @@ import LoginPage from "@/features/auth/pages/LoginPage";
 import ProtectedRoute from "@/shared/auth/ProtectedRoute";
 import ProfilePage from "@/features/profile/pages/ProfilePage";
 import TimerPage from "@/features/timer/pages/TimerPage";
-import LandingPage from "@/features/main/pages/LandingPage";
 import AuthShell from "@/shared/layout/AuthShell";
 import AppShell from "@/shared/layout/AppShell";
 import DashboardPage from "@/features/dashboard/pages/DashboardPage";
@@ -15,16 +14,8 @@ export const router = createBrowserRouter([
   {
     element: <AppShell />,
     children: [
-      { path: "/", element: <LandingPage /> }, // 랜딩페이지(공개)
-      {
-        // 메인(타이머)페이지는 로그인 필요
-        path: "/timer",
-        element: (
-          <ProtectedRoute>
-            <TimerPage />
-          </ProtectedRoute>
-        ),
-      },
+      { path: "/", element: <TimerPage /> }, // 랜딩페이지(=타이머페이지)
+
       {
         // 프로필 설정 페이지는 로그인 필요
         path: "/profile",
