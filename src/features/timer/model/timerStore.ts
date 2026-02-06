@@ -21,6 +21,7 @@ type TimerStore = {
   lastUpdateTime: string | null; // 서버값
   lastTickAt: number | null; // 클라이언트 tick 기준
 
+  startTime: string | null;
   splitTimes: SplitTime[];
   segmentStartAtMs: number | null;
 
@@ -52,6 +53,7 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
   lastUpdateTime: null,
   lastTickAt: null,
 
+  startTime: null,
   splitTimes: [],
   segmentStartAtMs: null,
   setSplitTimes: (v) => set({ splitTimes: v }),
@@ -89,17 +91,22 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
 
     const now = Date.now();
     const isPaused = current.timerState === "paused";
+    const startMs = data.startTime ? Date.parse(data.startTime) : now;
+    const serverLast = data.lastUpdateTime
+      ? Date.parse(data.lastUpdateTime)
+      : now;
 
     set({
       timerId: data.timerId,
       studyLogId: data.studyLogId,
       baseMs,
       totalMs: mergedTotal,
+      startTime: data.startTime ?? null,
       lastUpdateTime: data.lastUpdateTime ?? null,
       splitTimes: data.splitTimes ?? [],
       timerState: isPaused ? "paused" : "running",
       lastTickAt: isPaused ? null : now,
-      segmentStartAtMs: isPaused ? null : now,
+      segmentStartAtMs: isPaused ? null : Math.max(serverLast, startMs),
     });
   },
 
@@ -111,6 +118,7 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
       studyLogId: data.studyLogId,
       baseMs: 0,
       totalMs: 0,
+      startTime: data.startTime,
       lastUpdateTime: data.startTime,
       timerState: "running",
       lastTickAt: now,
@@ -171,6 +179,7 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
       timerState: "idle",
       baseMs: 0,
       totalMs: 0,
+      startTime: null,
       lastUpdateTime: null,
       lastTickAt: null,
       tasks: [],

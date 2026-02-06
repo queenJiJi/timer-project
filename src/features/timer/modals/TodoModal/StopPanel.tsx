@@ -8,6 +8,7 @@ import { useShallow } from "zustand/shallow";
 import { useTaskDraft } from "../../model/useTaskDraft";
 import { timerQueryKeys } from "../../model/query-service";
 import TaskEditor from "./TaskEditor";
+import { normalizeSplitTimesForRequest } from "../../lib/splitTimes";
 
 type Props = {
   open: boolean;
@@ -20,17 +21,16 @@ export default function StopPanel({ open, onClose }: Props) {
   const qc = useQueryClient();
   const stopMutation = useStopTimerMutation();
 
-  const { storeTasks, setTasks, timerId, flushRunningSegment, reset } =
-    useTimerStore(
-      useShallow((s) => ({
-        storeTasks: s.tasks,
-        setTasks: s.setTasks,
-        timerId: s.timerId,
-        splitTimes: s.splitTimes ?? [],
-        flushRunningSegment: s.flushRunningSegment,
-        reset: s.reset,
-      })),
-    );
+  const { storeTasks, setTasks, timerId, reset } = useTimerStore(
+    useShallow((s) => ({
+      storeTasks: s.tasks,
+      setTasks: s.setTasks,
+      timerId: s.timerId,
+      splitTimes: s.splitTimes ?? [],
+      flushRunningSegment: s.flushRunningSegment,
+      reset: s.reset,
+    })),
+  );
 
   const [mode, setMode] = useState<"view" | "edit">("view");
   const [isComposing, setIsComposing] = useState(false);
@@ -66,21 +66,36 @@ export default function StopPanel({ open, onClose }: Props) {
     if (!canSaveTasks) return;
     if (!reviewOk) return;
 
-    // 로컬 store 반영(최종 tasks)
+    // 1) 로컬 store 반영(최종 tasks)
     const finalTasks = d.draftTasks.map((t) => ({
       ...t,
       content: t.content.trim(),
     }));
     setTasks(finalTasks);
+    // flushRunningSegment(); // 마지막 구간 반영
 
-    flushRunningSegment(); // 마지막 구간 반영
-    const finalSplitTimes = useTimerStore.getState().splitTimes;
+    // 2) 마지막 구간 반영(pause가 flush 포함)
+    useTimerStore.getState().pause();
 
-    // 서버에 반영
+    const st = useTimerStore.getState();
+    const nowMs = Date.now();
+
+    const startMs = st.startTime ? Date.parse(st.startTime) : null;
+    if (!startMs) return;
+    // stop 요청용 splitTimes 정규화
+    const splitTimesForReq = normalizeSplitTimesForRequest({
+      splitTimes: st.splitTimes,
+      rangeStartMs: startMs,
+      rangeEndMs: nowMs,
+    });
+
+    // const finalSplitTimes = useTimerStore.getState().splitTimes;
+
+    // 3) 서버에 반영
     await stopMutation.mutateAsync({
       timerId,
       body: {
-        splitTimes: finalSplitTimes,
+        splitTimes: splitTimesForReq,
         review: reviewTrimmed,
         tasks: finalTasks.map((t) => ({
           content: t.content,
