@@ -1,104 +1,104 @@
 import { useMemo, useState } from "react";
-
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
-
-import CodeSymbol from "@/assets/code-symbol.png";
-import Edit from "@/assets/edit-icon.png";
-import Delete from "@/assets/delete-icon.png";
-import Check from "@/assets/check-icon.png";
 import { Button } from "@/shared/ui";
 import { clamp } from "@/lib/utils";
-import { MAX_TASK_LEN, type Task } from "./types";
+import { MAX_TASK_LEN } from "./types";
+import useStartTimerMutation from "../../model/useStartTimerMutation";
+import { useTimerStore } from "../../model/timerStore";
+import { useShallow } from "zustand/shallow";
+import { useTaskDraft } from "../../model/useTaskDraft";
+import TaskEditor from "./TaskEditor";
 
 type Props = {
+  open: boolean;
   onClose: () => void;
-  onSubmit?: (body: { todayGoal: string; tasks: string[] }) => void;
 };
 
-export default function StartPanel({ onClose, onSubmit }: Props) {
+export default function StartPanel({ open, onClose }: Props) {
+  const startTimerMutation = useStartTimerMutation();
+
+  const { setTasks, startFromServer, play } = useTimerStore(
+    useShallow((s) => ({
+      setTasks: s.setTasks,
+      startFromServer: s.startFromServer,
+      play: s.play,
+    })),
+  );
+
   const [todayGoal, setTodayGoal] = useState<string>("");
-  const [taskInput, setTaskInput] = useState<string>("");
-  const [tasks, setTasks] = useState<Task[]>([]);
-
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingValue, setEditingValue] = useState<string>("");
-
   const [isComposing, setIsComposing] = useState(false);
-
-  // 초기화
-  const resetLocal = () => {
-    setTodayGoal("");
-    setTaskInput("");
-    setTasks([]);
-    setEditingId(null);
-    setEditingValue("");
-  };
-
-  //   useEffect(() => {
-  //     // 모달이 열릴때마다 초기화(닫았다가 다시열었을 때 이전 task가 남는 문제방지)
-  //     if (open) {
-  //       resetLocal();
-  //     }
-  //   }, [open]);
-
-  // 할 일 추가
-  const addTask = () => {
-    if (!taskInput) return;
-    const v = taskInput.trim();
-    if (!v) return;
-    setTasks((prev) => [...prev, { id: crypto.randomUUID(), content: v }]);
-    setTaskInput("");
-  };
-
-  // 할 일 수정
-  const startEdit = (t: Task) => {
-    setEditingId(t.id);
-    setEditingValue(t.content);
-  };
-
-  // 수정된 할 일 저장
-  const saveEdit = (id: string) => {
-    const v = editingValue?.trim();
-    if (!v) return;
-
-    setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, content: v } : t)),
-    );
-    setEditingId(null);
-    setEditingValue("");
-  };
-
-  // 할 일 삭제
-  const removeTask = (id: string) => {
-    setTasks((prev) => prev.filter((t) => t.id != id));
-  };
+  const emptyTasks = useMemo(() => [], []);
+  const d = useTaskDraft({ open, initialTasks: emptyTasks });
 
   // 취소 버튼
   const handleCancel = () => {
-    resetLocal();
+    setTodayGoal("");
+    d.setTaskInput("");
+    d.setDraftTasks([]);
+    d.resetEditing();
     onClose();
   };
 
   // 제출 가능 상태 확인
   const canSubmit = useMemo(() => {
     const goalOk = todayGoal.trim().length > 0;
-    const hasTask = tasks.length >= 1;
-    const noEmpty = tasks.every((t) => t.content.trim().length > 0);
-    return goalOk && hasTask && noEmpty;
-  }, [todayGoal, tasks]);
+    const hasTask = d.draftTasks.length >= 1;
+    const noEmpty = d.draftTasks.every((t) => t.content.trim().length > 0);
+    return goalOk && hasTask && noEmpty && !startTimerMutation.isPending;
+  }, [todayGoal, d.draftTasks, startTimerMutation.isPending]);
 
   // 시작하기(=모달 제출) 버튼
-  const handleSubmit = () => {
+  const handleStart = async () => {
     if (!canSubmit) return;
-    onSubmit?.({
+
+    // 1) 로컬 store 저장
+    const tasks = d.draftTasks.map((t) => ({
+      id: crypto.randomUUID(),
+      content: t.content.trim(),
+      isCompleted: false,
+    }));
+    setTasks(tasks);
+
+    // 2) 서버 타이머 시작
+    const res = await startTimerMutation.mutateAsync({
       todayGoal: todayGoal.trim(),
-      tasks: tasks.map((t) => t.content.trim()),
+      tasks: tasks.map((t) => t.content),
     });
+
+    // 3) store 타이머 세팅 + running
+    startFromServer(res);
+    play();
+
+    // 4) 모달 닫기
+    onClose();
   };
+
+  const footerButtonUI = (
+    <div className="mt-9 flex justify-end gap-4">
+      <Button
+        size="md"
+        className="bg-[#F9FAFB] text-mainColor h-12 text-[18px] font-semibold"
+        onClick={handleCancel}
+        disabled={startTimerMutation.isPending}
+      >
+        취소
+      </Button>
+
+      <Button
+        size="md"
+        className={`h-12 px-6 font-semibold text-[18px]
+            ${canSubmit ? "bg-mainColor/10 text-mainColor" : "bg-[#E5E7EB] text-[#969DA8]"}`}
+        onClick={handleStart}
+        disabled={!canSubmit}
+      >
+        타이머 시작하기
+      </Button>
+    </div>
+  );
 
   return (
     <>
-      <DialogHeader className="space-y-0">
+      <DialogHeader className="space-y-0 mb-9">
         <DialogTitle className="sr-only">오늘의 목표</DialogTitle>
         <input
           value={todayGoal}
@@ -113,131 +113,24 @@ export default function StartPanel({ onClose, onSubmit }: Props) {
             "
         />
       </DialogHeader>
-
-      {/* 할 일 목록 */}
-      <div className="mt-9">
-        <div className="text-[14px] text-[#4B5563]">할 일 목록</div>
-
-        {/* 입력 + 추가 */}
-        <div className="mt-2 flex items-center gap-3 rounded-md bg-[#F0F2F5] py-[18px] px-6">
-          <input
-            className="flex-1 bg-transparent text-[16px] text-[#4B5563] outline-none placeholder:text-[#CCD0D6] "
-            value={taskInput}
-            onChange={(e) => setTaskInput(clamp(e.target.value, MAX_TASK_LEN))}
-            placeholder="할 일을 추가해 주세요."
-            onCompositionStart={() => setIsComposing(true)}
-            onCompositionEnd={() => setIsComposing(false)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                if (isComposing) return;
-                e.preventDefault();
-                addTask();
-              }
-            }}
-          />
-          <button
-            type="button"
-            onClick={addTask}
-            className={`text-[16px] font-bold
-                ${taskInput ? "text-mainColor" : "text-[#CCD0D6] cursor-not-allowed"}`}
-          >
-            추가
-          </button>
-        </div>
-
-        {/* 추가된 할일 목록 */}
-        <div className="mt-9 h-[460px] overflow-y-auto overflow-x-hidden space-y-3 no-scrollbar">
-          {tasks.map((t) => {
-            const isEditing = editingId === t.id;
-
-            return (
-              <div
-                key={t.id}
-                className="flex items-center justify-between rounded-md bg-mainColor px-6 py-[26px]"
-              >
-                <div className="flex items-center gap-3">
-                  <img src={CodeSymbol} className="w-[42px]" />
-                  {isEditing ? (
-                    <input
-                      value={editingValue}
-                      onChange={(e) =>
-                        setEditingValue(clamp(e.target.value, MAX_TASK_LEN))
-                      }
-                      className="bg-mainColor text-[16px] text-white font-semibold outline-none"
-                      autoFocus
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") saveEdit(t.id);
-                      }}
-                    />
-                  ) : (
-                    <div className="text-[16px] font-semibold text-white ">
-                      {t.content}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-4">
-                  {isEditing ? (
-                    <>
-                      {/* 저장(체크) */}
-                      <button
-                        type="button"
-                        className="opacity-90 hover:opacity-100"
-                        onClick={() => saveEdit(t.id)}
-                        aria-label="save task"
-                      >
-                        <img src={Check} className="h-6 w-6" />
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      {/* 수정 */}
-                      <button
-                        type="button"
-                        className="opacity-90 hover:opacity-100"
-                        onClick={() => startEdit(t)}
-                        aria-label="edit task"
-                      >
-                        <img src={Edit} className="h-6 w-6" />
-                      </button>
-                      {/* 삭제 */}
-                      <button
-                        type="button"
-                        className="opacity-90 hover:opacity-100"
-                        onClick={() => removeTask(t.id)}
-                        aria-label="delete task"
-                      >
-                        <img src={Delete} className="h-6 w-6" />
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* 하단 버튼 */}
-        <div className="mt-9 flex justify-end gap-4">
-          <Button
-            size="md"
-            className="bg-[#F9FAFB] text-mainColor h-12 text-[18px] font-semibold"
-            onClick={handleCancel}
-          >
-            취소
-          </Button>
-
-          <Button
-            size="md"
-            className={`w-[146px] h-12 px-4 py-[13px] font-semibold text-[18px]
-                ${canSubmit ? "bg-mainColor/10 text-mainColor" : "bg-[#E5E7EB] text-[#969DA8]"}`}
-            onClick={handleSubmit}
-            disabled={!canSubmit}
-          >
-            타이머 시작하기
-          </Button>
-        </div>
-      </div>
+      <TaskEditor
+        mode="edit"
+        taskInput={d.taskInput}
+        onChangeTaskInput={d.setTaskInput}
+        onAddTask={() => d.addTask(d.taskInput)}
+        isComposing={isComposing}
+        onCompositionStart={() => setIsComposing(true)}
+        onCompositionEnd={() => setIsComposing(false)}
+        tasks={d.draftTasks}
+        onToggleCompleted={() => {}}
+        editingId={d.editingId}
+        editingValue={d.editingValue}
+        onChangeEditingValue={d.setEditingValue}
+        onStartEdit={d.startEdit}
+        onSaveEdit={d.saveEdit}
+        onRemoveTask={d.removeTask}
+        footerButtons={footerButtonUI}
+      />
     </>
   );
 }

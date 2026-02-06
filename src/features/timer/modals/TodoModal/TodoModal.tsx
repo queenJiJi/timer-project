@@ -1,5 +1,5 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import type { StartBody, TodoModalMode } from "./types";
+import type { TodoModalMode } from "./types";
 import StartPanel from "./StartPanel";
 import ManagePanel from "./ManagePanel";
 import StopPanel from "./StopPanel";
@@ -8,17 +8,9 @@ type Props = {
   open: boolean;
   mode: TodoModalMode;
   onClose: () => void;
-
-  onSubmitStart?: (body: StartBody) => void;
-  onSubmitStop?: () => void;
 };
 
-export default function TodoModal({
-  open,
-  mode,
-  onClose,
-  onSubmitStart,
-}: Props) {
+export default function TodoModal({ open, mode, onClose }: Props) {
   return (
     <Dialog open={open}>
       <DialogContent
@@ -29,9 +21,7 @@ export default function TodoModal({
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
       >
-        {mode === "start" && (
-          <StartPanel onClose={onClose} onSubmit={onSubmitStart} />
-        )}
+        {mode === "start" && <StartPanel open={open} onClose={onClose} />}
 
         {mode === "manage" && <ManagePanel open={open} onClose={onClose} />}
 

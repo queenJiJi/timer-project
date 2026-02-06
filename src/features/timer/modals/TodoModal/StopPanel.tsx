@@ -129,7 +129,6 @@ export default function StopPanel({ open, onClose }: Props) {
           완료한 할 일을 체크하고, 오늘의 학습 회고를 작성해 주세요.
         </div>
       </div>
-
       {/* tasks 영역 */}
       <TaskEditor
         mode={mode}
@@ -162,7 +161,6 @@ export default function StopPanel({ open, onClose }: Props) {
         }}
         footerButtons={null}
       />
-
       {/* 학습 회고 */}
       <div className="mt-9">
         <div className="text-[14px] text-[#4B5563]">학습 회고</div>
@@ -173,8 +171,7 @@ export default function StopPanel({ open, onClose }: Props) {
           className="mt-2 h-[110px] w-full resize-none rounded-md bg-[#F3F4F6] p-4 text-[16px] text-[#4B5563] outline-none placeholder:text-[#CCD0D6]"
         />
       </div>
-
-      {/*하단 버튼*/}
+      {/* 하단 버튼 */}
       {footerButtonUI}
     </div>
   );

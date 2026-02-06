@@ -96,7 +96,6 @@ export default function TaskEditor({
             <div className="text-[20px] font-bold text-[#394252]">
               할 일 목록
             </div>
-
             <button
               type="button"
               className="flex items-center gap-2 text-[14px] text-[#4B5563]"
@@ -210,7 +209,6 @@ export default function TaskEditor({
               );
             })}
           </div>
-
           {footerButtons}
         </div>
       )}

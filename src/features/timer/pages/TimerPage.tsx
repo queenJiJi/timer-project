@@ -7,12 +7,7 @@ import { useAuthStore } from "@/shared/auth/authStore";
 import { AlertModal } from "@/shared/ui/Modal";
 import { useNavigate } from "react-router-dom";
 import { useShallow } from "zustand/shallow";
-import useStartTimerMutation from "../model/useStartTimerMutation";
-import {
-  TodoModal,
-  type StartBody,
-  type TodoModalMode,
-} from "../modals/TodoModal";
+import { TodoModal, type TodoModalMode } from "../modals/TodoModal";
 import useResetTimerMutation from "../model/useResetTimerMutation";
 import { useQueryClient } from "@tanstack/react-query";
 import { timerQueryKeys } from "../model/query-service";
@@ -33,12 +28,9 @@ export default function TimerPage() {
     totalMs,
     timerId,
     hydrateFromServer,
-    startFromServer,
-    setTasks,
     reset,
     play,
     pause,
-    // stop,
   } = useTimerStore(
     useShallow((s) => ({
       timerState: s.timerState,
@@ -50,13 +42,11 @@ export default function TimerPage() {
       reset: s.reset,
       play: s.play,
       pause: s.pause,
-      // stop: s.stop,
     })),
   );
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [resetModalOpen, setResetModalOpen] = useState(false);
 
-  const startTimerMutation = useStartTimerMutation();
   const updateTimerMutation = usePauseTimerMutation();
   const resetTimerMutation = useResetTimerMutation();
   const qc = useQueryClient();
@@ -122,21 +112,6 @@ export default function TimerPage() {
     openStopModal();
   };
 
-  const onTodoSubmit = async (body: StartBody) => {
-    // 먼저 로컬 tasks store에 저장
-    setTasks(
-      body.tasks.map((content) => ({
-        id: crypto.randomUUID(),
-        content,
-        isCompleted: false,
-      })),
-    );
-
-    const res = await startTimerMutation.mutateAsync(body);
-    startFromServer(res);
-    setTodoModalOpen(false); // 서버에서 timerId 받아서 store 세팅 -> running 시작
-  };
-
   return (
     <>
       <TimerView
@@ -183,7 +158,6 @@ export default function TimerPage() {
         open={todoModalOpen}
         mode={todoModalMode}
         onClose={() => setTodoModalOpen(false)}
-        onSubmitStart={onTodoSubmit}
       />
 
       <AlertModal

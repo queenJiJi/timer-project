@@ -9,7 +9,6 @@ export function useTaskDraft(params: { open: boolean; initialTasks: Task[] }) {
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState("");
-  //   const [isComposing, setIsComposing] = useState(false);
 
   useEffect(() => {
     // 모달 열릴 때 store->draft 복사
@@ -19,7 +18,6 @@ export function useTaskDraft(params: { open: boolean; initialTasks: Task[] }) {
     setTaskInput("");
     setEditingId(null);
     setEditingValue("");
-    // setMode("view");
   }, [open, initialTasks]);
 
   // 할일 완료 토글(view 모드에서)
